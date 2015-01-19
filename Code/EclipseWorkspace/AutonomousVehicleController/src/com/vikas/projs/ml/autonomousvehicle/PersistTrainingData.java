@@ -19,7 +19,9 @@ import org.eclipse.swt.widgets.Display;
  */
 public class PersistTrainingData implements Runnable{
 
-	private ArrayBlockingQueue<FeatureList> featureQueue;
+	private FileWriter fWriter;
+	private BufferedWriter bWriter;
+	private ArrayBlockingQueue<FeatureMessage> featureQueue;
 	private Thread persistTrainingDataThread;
 	private String trainingDataDirectory;
 	private Display display;
@@ -29,7 +31,7 @@ public class PersistTrainingData implements Runnable{
 	private int pixelRowsToStripFromTop;
 	private int pixelRowsToStripFromBottom;
 	
-	public PersistTrainingData(ArrayBlockingQueue<FeatureList> featureQueue, String trainingDataDirectory, Display display, int pixelRowsToStripFromTop, int pixelRowsToStripFromBottom){
+	public PersistTrainingData(ArrayBlockingQueue<FeatureMessage> featureQueue, String trainingDataDirectory, Display display, int pixelRowsToStripFromTop, int pixelRowsToStripFromBottom){
 		this.featureQueue = featureQueue;
 		this.trainingDataDirectory = trainingDataDirectory;
 		this.display = display;
@@ -47,8 +49,6 @@ public class PersistTrainingData implements Runnable{
 	
 	@Override
 	public void run() {
-		FileWriter fWriter;
-		BufferedWriter bWriter;
 		
 		//Create the file for persistence
 		try{
@@ -62,7 +62,7 @@ public class PersistTrainingData implements Runnable{
 			//In case there are none in queue, the thread will block in anticipation of a new message
 			while(!persistTrainingDataThread.isInterrupted()){
 				try {
-					FeatureList currentFeatureList = featureQueue.take();
+					FeatureMessage currentFeatureList = featureQueue.take();
 					logInfoToApplicationDisplay("Info: Successfully received a "+currentFeatureList.getFrameWidth()+" X "+currentFeatureList.getFrameHeight()+" frame for persistence");
 					
 					//Calculate the pixels to be removed based on the number of pixels rows to be removed from top and bottom
@@ -102,18 +102,21 @@ public class PersistTrainingData implements Runnable{
 					logInfoToApplicationDisplay("Info: Successfully persisted a "+currentFeatureList.getFrameWidth()+" X "+updatedFrameHeight+" frame");
 				} catch (InterruptedException e) {
 					logInfoToApplicationDisplay("Info: Persist TrainingData thread has been interrupted, will not persist TrainingData anymore");
+					stopPersistance();
 				} catch (IOException e){
 					logErrorToApplicationDisplay(e, "ERROR: IOException when trying to persist Training Data into Training Data file: "+trainingFile.getAbsolutePath());
+					stopPersistance();
 				}
 			}
 			
 		}catch(IOException e){
 			logErrorToApplicationDisplay(e, "ERROR: IOException when trying to create the Training Data file: "+trainingFile.getAbsolutePath());
+			stopPersistance();
 		}
 				
 	}
 
-	public void cancel(){
+	private void cancel(){
 		//Sleep for 2000 milliseconds so that all the persistance operation is complete
 		try {
 			Thread.sleep(2000);
@@ -123,6 +126,31 @@ public class PersistTrainingData implements Runnable{
 		logInfoToApplicationDisplay("Info: Current Persist TrainingData thread will be interuppted");
 		persistTrainingDataThread.interrupt();
 	}
+	
+	protected void stopPersistance(){	
+		this.cancel();
+				
+		if(fWriter != null){
+			//Close OutStream
+			try {
+				fWriter.close();
+				logInfoToApplicationDisplay("Info: Successfully closed the Persistance Output File Stream");
+			} catch (IOException e) {				
+				logErrorToApplicationDisplay(e, "ERROR: IOException when trying to close the Persistance Output File Stream");
+			}
+		}		
+		if(bWriter != null){
+			//Close Stream
+			try {
+				bWriter.close();
+				logInfoToApplicationDisplay("Info: Successfully closed the Persistance Output Buffered File Stream");
+			} catch (IOException e) {				
+				logErrorToApplicationDisplay(e, "ERROR: IOException when trying to close the Persistance Output Buffered File Stream");
+			}
+		}		
+		
+	}
+
 	
 	/**
 	 * Proxy for the logInfoToApplicationDisplay function defined in DriverDisplayAndController

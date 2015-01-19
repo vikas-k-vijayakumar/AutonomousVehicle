@@ -20,7 +20,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.widgets.Button;
 
-import com.vikas.projs.ml.autonomousvehicle.FeatureList;
+import com.vikas.projs.ml.autonomousvehicle.FeatureMessage;
 
 public class DisplayStoredTrainingDataImages {
 

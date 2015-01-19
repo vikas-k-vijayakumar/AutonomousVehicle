@@ -47,12 +47,15 @@ public class DriverDisplayAndController {
 	private static int maxLinesInLog = 40;
 	//Boolean field used to store the current status of connection with the sensor device
 	private static boolean connectedToSensor = false;
+	//Boolean field used to store the current status of connection with the Arduino / Controller
+	private static boolean connectedToController = false;
 	//Button which is used to initiate connection/disconnection to Sensor Device
 	private static Button btnConnectToSensor;
 	private static Button btnForward;
 	private static Button btnLeft;
 	private static Button btnReverse;
 	private static Button btnRight;
+	private static Button btnConnectToController;
 	//Label where the Sensor Video frames are displayed.
 	private static Label lblSensorVideoOut;
 	//Define an RGB class to hold the 256 different (grey) values, pixel depth is 8.
@@ -60,6 +63,7 @@ public class DriverDisplayAndController {
 	private static PaletteData paletteDataGrayscale;
 	private static org.eclipse.swt.graphics.ImageData grayscaleFrameData;
 	private SensorClient sensorClient;
+	private VehicleController vehicleController;
 	private DisplayTrainingData displayTrainingData;
 	//To capture the driving mode
 	private Text trainingDataDirectory;
@@ -67,12 +71,19 @@ public class DriverDisplayAndController {
 	private final static String manualDrivingModeCode = "Manual";
 	private final static String autoDrivingModeCode = "Automatic";
 	private static String appDrivingMode = manualDrivingModeCode;
-	//Java Blocking queue is used to exchange feature information between SWT main thread and the persister thread
+	
+	//Java Blocking queue is used to send feature information from SWT main thread to the persister thread
 	//Capacity of the queue is 200, which means the persister can lag behind by persisting upto 200 features before the SWT main
 	//thread gets blocked.
 	private static int featureQueueCapacity = 100;
-	private static ArrayBlockingQueue<FeatureList> featureQueue = new ArrayBlockingQueue<FeatureList>(featureQueueCapacity);
+	private static ArrayBlockingQueue<FeatureMessage> featureQueue = new ArrayBlockingQueue<FeatureMessage>(featureQueueCapacity);
 	private static int featureQueueCapacityWarnPercent = 50;
+	//Blocking queue to send the controls to Arduino from the SWT main thread in case of training and
+	//prediction thread in case of auto mode
+	private static int controllerQueueCapacity = 100;
+	private static ArrayBlockingQueue<ControlMessage> controllerQueue = new ArrayBlockingQueue<ControlMessage>(controllerQueueCapacity);
+	private static int controllerQueueCapacityWarnPercent = 50;
+	
 	private static Text pixelRowsToStripFromTop;
 	private static Text pixelRowsToStripFromBottom;
 	private Label lblNavigationControl;
@@ -109,6 +120,10 @@ public class DriverDisplayAndController {
 	private static Button chkbtnErrorsWarnings;
 	private static Button chkbtnInfoLogging;
 	private static Boolean infoLoggingRequired=false;
+	private Label lblStep;
+	private Label lblStep_1;
+	private Label lblArduinoPortName;
+	private Text arduinoPortName;
 
 	/**
 	 * Launch the application.
@@ -173,28 +188,28 @@ public class DriverDisplayAndController {
 		configurationComposite.setLayoutData(gd_configurationComposite);
 		
 		Label label_IP = new Label(configurationComposite, SWT.NONE);
-		label_IP.setBounds(255, 156, 124, 17);
+		label_IP.setBounds(255, 104, 124, 17);
 		label_IP.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
 		label_IP.setText("Sensor IPv4 Address");
 		
 		ipV4Address = new Text(configurationComposite, SWT.BORDER);
-		ipV4Address.setBounds(410, 155, 129, 21);
+		ipV4Address.setBounds(410, 103, 129, 21);
 		ipV4Address.setToolTipText("Eg: 192.168.0.51");
 		
 		Label label_Port = new Label(configurationComposite, SWT.NONE);
-		label_Port.setBounds(255, 193, 138, 17);
+		label_Port.setBounds(255, 136, 138, 17);
 		label_Port.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
 		label_Port.setText("Sensor Streaming Port");
 		
 		streamingPort = new Text(configurationComposite, SWT.BORDER);
-		streamingPort.setBounds(410, 192, 95, 21);
+		streamingPort.setBounds(444, 135, 95, 21);
 		streamingPort.setToolTipText("Eg: 6666");
 		streamingPort.setText("6666");
 		
 		final CCombo drivingMode = new CCombo(configurationComposite, SWT.BORDER);
 		drivingMode.setEditable(false);
 		drivingMode.setItems(new String[] {manualDrivingModeCode, autoDrivingModeCode});
-		drivingMode.setBounds(410, 231, 95, 21);
+		drivingMode.setBounds(444, 33, 95, 21);
 		//Add Selection Listener
 		drivingMode.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -218,41 +233,41 @@ public class DriverDisplayAndController {
 		Label lblDrivingMode = new Label(configurationComposite, SWT.NONE);
 		lblDrivingMode.setText("Driving Mode");
 		lblDrivingMode.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		lblDrivingMode.setBounds(255, 231, 138, 17);
+		lblDrivingMode.setBounds(255, 33, 138, 17);
 		
 		lblTrainingDataDirectory = new Label(configurationComposite, SWT.NONE);
-		lblTrainingDataDirectory.setText("Training Features Dir");
+		lblTrainingDataDirectory.setText("Training \r\nFeatures Dir");
 		lblTrainingDataDirectory.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		lblTrainingDataDirectory.setBounds(21, 259, 138, 17);
+		lblTrainingDataDirectory.setBounds(255, 170, 76, 38);
 		
 		trainingDataDirectory = new Text(configurationComposite, SWT.BORDER);
 		trainingDataDirectory.setToolTipText("Eg: D:\\Vikas\\TrainingData");
-		trainingDataDirectory.setBounds(231, 258, 274, 21);
+		trainingDataDirectory.setBounds(337, 169, 202, 21);
 		
 		Label lblPixelStripsFromTop = new Label(configurationComposite, SWT.NONE);
 		lblPixelStripsFromTop.setText("Pixel Rows To Strip from Top");
 		lblPixelStripsFromTop.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		lblPixelStripsFromTop.setBounds(21, 296, 192, 20);
+		lblPixelStripsFromTop.setBounds(255, 214, 195, 18);
 		
 		Label lblPixelStripsFromBottom = new Label(configurationComposite, SWT.NONE);
 		lblPixelStripsFromBottom.setText("Pixel Rows To Strip from Bottom");
 		lblPixelStripsFromBottom.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		lblPixelStripsFromBottom.setBounds(21, 322, 211, 21);
+		lblPixelStripsFromBottom.setBounds(255, 252, 210, 21);
 		
 		pixelRowsToStripFromTop = new Text(configurationComposite, SWT.BORDER);
 		pixelRowsToStripFromTop.setToolTipText("Eg: 6666");
-		pixelRowsToStripFromTop.setBounds(231, 295, 68, 21);
+		pixelRowsToStripFromTop.setBounds(471, 213, 68, 21);
 		pixelRowsToStripFromTop.setText("0");
 		
 		pixelRowsToStripFromBottom = new Text(configurationComposite, SWT.BORDER);
 		pixelRowsToStripFromBottom.setToolTipText("Eg: 6666");
-		pixelRowsToStripFromBottom.setBounds(231, 321, 68, 21);
+		pixelRowsToStripFromBottom.setBounds(471, 251, 68, 21);
 		pixelRowsToStripFromBottom.setText("0");
 		
 		btnConnectToSensor = new Button(configurationComposite, SWT.WRAP);
-		btnConnectToSensor.setBounds(366, 305, 116, 38);
+		btnConnectToSensor.setBounds(452, 70, 87, 24);
 		btnConnectToSensor.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
-		btnConnectToSensor.setText("Connect To Sensor");
+		btnConnectToSensor.setText("Connect");
 		
 		lblSensorVideoOut = new Label(configurationComposite, SWT.NONE);
 		lblSensorVideoOut.setBounds(21, 33, 200, 200);
@@ -267,33 +282,33 @@ public class DriverDisplayAndController {
 		
 		lblNavigationControl = new Label(configurationComposite, SWT.NONE);
 		lblNavigationControl.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
-		lblNavigationControl.setBounds(255, 10, 124, 17);
+		lblNavigationControl.setBounds(72, 252, 124, 17);
 		lblNavigationControl.setText("Navigation Control");
 		lblNavigationControl.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
 		
 		//Forward Button
 		btnForward = new Button(configurationComposite, SWT.NONE);
-		btnForward.setBounds(296, 33, 34, 40);
+		btnForward.setBounds(112, 271, 34, 40);
 		btnForward.setFont(SWTResourceManager.getFont("Segoe UI", 16, SWT.BOLD));
 		btnForward.setText(" \u2191 ");
 		btnForward.setEnabled(false);
 		
 				
 				btnReverse = new Button(configurationComposite, SWT.NONE);
-				btnReverse.setBounds(296, 79, 34, 40);
+				btnReverse.setBounds(112, 317, 34, 40);
 				btnReverse.setFont(SWTResourceManager.getFont("Segoe UI", 16, SWT.BOLD));
 				btnReverse.setText(" \u2193 ");
 				btnReverse.setEnabled(false);
 				
 						
 						btnRight = new Button(configurationComposite, SWT.NONE);
-						btnRight.setBounds(336, 53, 34, 40);
+						btnRight.setBounds(152, 291, 34, 40);
 						btnRight.setFont(SWTResourceManager.getFont("Segoe UI", 16, SWT.BOLD));
 						btnRight.setText("\u2192");
 						btnRight.setEnabled(false);
 						
 						btnLeft = new Button(configurationComposite, SWT.NONE);
-						btnLeft.setBounds(256, 53, 34, 40);
+						btnLeft.setBounds(72, 291, 34, 40);
 						btnLeft.setFont(SWTResourceManager.getFont("Segoe UI", 16, SWT.BOLD));
 						btnLeft.setText("\u2190");
 						btnLeft.setEnabled(false);
@@ -315,28 +330,94 @@ public class DriverDisplayAndController {
 						
 						lblConnectionSetup = new Label(configurationComposite, SWT.NONE);
 						lblConnectionSetup.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
-						lblConnectionSetup.setText("Initialization Parameters");
+						lblConnectionSetup.setText("Step 2 - Connect to Sensor");
 						lblConnectionSetup.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-						lblConnectionSetup.setBounds(312, 133, 156, 17);
+						lblConnectionSetup.setBounds(255, 73, 168, 17);
 						
 						label_9 = new Label(configurationComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
 						label_9.setBounds(10, 251, 233, 2);
 						
-						Label label_10 = new Label(configurationComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
-						label_10.setBounds(241, 132, 302, 2);
+						lblStep = new Label(configurationComposite, SWT.NONE);
+						lblStep.setText("Step 1 - Choose Driving Mode");
+						lblStep.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
+						lblStep.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+						lblStep.setBounds(255, 10, 200, 17);
+						
+						lblStep_1 = new Label(configurationComposite, SWT.NONE);
+						lblStep_1.setText("Step 3 - Connect to Controller");
+						lblStep_1.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
+						lblStep_1.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+						lblStep_1.setBounds(255, 293, 195, 17);
+						
+						lblArduinoPortName = new Label(configurationComposite, SWT.NONE);
+						lblArduinoPortName.setText("Serial Port Name");
+						lblArduinoPortName.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+						lblArduinoPortName.setBounds(255, 322, 138, 17);
+						
+						arduinoPortName = new Text(configurationComposite, SWT.BORDER);
+						arduinoPortName.setToolTipText("Eg: 6666");
+						arduinoPortName.setText("COM5");
+						arduinoPortName.setBounds(444, 321, 95, 21);
+						
+						Label label_10 = new Label(configurationComposite, SWT.SEPARATOR | SWT.VERTICAL);
+						label_10.setBounds(241, 252, 2, 103);
+						
+						btnConnectToController = new Button(configurationComposite, SWT.NONE);
+						btnConnectToController.addSelectionListener(new SelectionAdapter() {
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								if(connectedToController){
+									logInfoToApplicationDisplay("Info: DisconnectFromController button has been pressed");
+									//Disconnect from Arduino / Controller
+									if (vehicleController != null){
+										vehicleController.disconnectFromController();
+									}
+
+								}else{
+									logInfoToApplicationDisplay("Info: ConnectToController button has been pressed");
+									//Create a thread to start the communication protocol with Sensor Device 
+									vehicleController = new VehicleController(arduinoPortName.getText(), display, controllerQueue);
+								}
+							}
+						});
+						btnConnectToController.setText("Connect");
+						btnConnectToController.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+						btnConnectToController.setBounds(452, 289, 87, 24);
+						
+						Label label_11 = new Label(configurationComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
+						label_11.setBounds(293, 65, 212, 2);
+						
+						Label label_12 = new Label(configurationComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
+						label_12.setBounds(293, 279, 212, 2);
 						//Register listener for button click
 						btnLeft.addSelectionListener(new SelectionAdapter() {
 							@Override
 							public void widgetSelected(SelectionEvent e){
 								logInfoToApplicationDisplay("Info: Left button has been pressed");
+								//Send the Control Message to VehicleController
+								if(appDrivingMode.equals(manualDrivingModeCode)){
+									try {
+										//Send a warning if the controllerQueue capacity has reached the configured warning threshold
+										float controlQueueCapacityPercent = (((controllerQueueCapacity - controllerQueue.remainingCapacity()) / controllerQueueCapacity) * 100);
+										if(controlQueueCapacityPercent > controllerQueueCapacityWarnPercent){
+											logWarningToApplicationDisplay("Warning: The ControllerQueue has reached "+controlQueueCapacityPercent+" of its capacity. Controls are not being processed fast enough");
+										}
+										ControlMessage controlMessage = new ControlMessage();
+										controlMessage.setSteeringDirection(FeatureMessage.steerLeft);
+										controllerQueue.put(controlMessage);
+										logInfoToApplicationDisplay("Info: Successfully sent a ControlMessage to Steer Left");
+									} catch (InterruptedException ex) {
+										logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish ControlMessage to BlockingQueue");						
+									}
+								}
 								//Push the features to BlockingQueue for persistence in case the mode is Manual
 								if(appDrivingMode.equals(manualDrivingModeCode) && (grayscaleFrameData != null)){
-									FeatureList currentfeatureList = new FeatureList();
+									FeatureMessage currentfeatureList = new FeatureMessage();
 									currentfeatureList.setFrameWidth(grayscaleFrameData.width);
 									currentfeatureList.setFrameHeight(grayscaleFrameData.height);
 									currentfeatureList.setPixelDepth(grayscaleFrameData.depth);
 									currentfeatureList.setFramePixelData(grayscaleFrameData.data);
-									currentfeatureList.setSteeringDirection(FeatureList.steerLeft);
+									currentfeatureList.setSteeringDirection(FeatureMessage.steerLeft);
 									
 									try {
 										//Send a warning if the featureQueue capacity has reached the configured warning threshold
@@ -347,7 +428,7 @@ public class DriverDisplayAndController {
 										featureQueue.put(currentfeatureList);
 										logInfoToApplicationDisplay("Info: Successfully sent a "+grayscaleFrameData.width+" X "+grayscaleFrameData.height+" frame for persistance");
 									} catch (InterruptedException ex) {
-										logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish FeatureList to BlockingQueue for Persistance");						
+										logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish FeatureMessage to BlockingQueue for Persistance");						
 									}
 								}				
 							}
@@ -357,14 +438,31 @@ public class DriverDisplayAndController {
 							@Override
 							public void widgetSelected(SelectionEvent e){
 								logInfoToApplicationDisplay("Info: Right button has been pressed");
+								//Send the Control Message to VehicleController
+								if(appDrivingMode.equals(manualDrivingModeCode)){
+									try {
+										//Send a warning if the controllerQueue capacity has reached the configured warning threshold
+										float controlQueueCapacityPercent = (((controllerQueueCapacity - controllerQueue.remainingCapacity()) / controllerQueueCapacity) * 100);
+										if(controlQueueCapacityPercent > controllerQueueCapacityWarnPercent){
+											logWarningToApplicationDisplay("Warning: The ControllerQueue has reached "+controlQueueCapacityPercent+" of its capacity. Controls are not being processed fast enough");
+										}
+										ControlMessage controlMessage = new ControlMessage();
+										controlMessage.setSteeringDirection(FeatureMessage.steerRight);
+										controllerQueue.put(controlMessage);
+										logInfoToApplicationDisplay("Info: Successfully sent a ControlMessage to Steer Right");
+									} catch (InterruptedException ex) {
+										logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish ControlMessage to BlockingQueue");						
+									}
+								}
+
 								//Push the features to BlockingQueue for persistence in case the mode is Manual
 								if(appDrivingMode.equals(manualDrivingModeCode) && (grayscaleFrameData != null)){
-									FeatureList currentfeatureList = new FeatureList();
+									FeatureMessage currentfeatureList = new FeatureMessage();
 									currentfeatureList.setFrameWidth(grayscaleFrameData.width);
 									currentfeatureList.setFrameHeight(grayscaleFrameData.height);
 									currentfeatureList.setPixelDepth(grayscaleFrameData.depth);
 									currentfeatureList.setFramePixelData(grayscaleFrameData.data);
-									currentfeatureList.setSteeringDirection(FeatureList.steerRight);
+									currentfeatureList.setSteeringDirection(FeatureMessage.steerRight);
 									
 									try {
 										//Send a warning if the featureQueue capacity has reached the configured warning threshold
@@ -375,7 +473,7 @@ public class DriverDisplayAndController {
 										featureQueue.put(currentfeatureList);
 										logInfoToApplicationDisplay("Info: Successfully sent a "+grayscaleFrameData.width+" X "+grayscaleFrameData.height+" frame for persistance");
 									} catch (InterruptedException ex) {
-										logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish FeatureList to BlockingQueue for Persistance");						
+										logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish FeatureMessage to BlockingQueue for Persistance");						
 									}
 								}				
 							}
@@ -385,14 +483,30 @@ public class DriverDisplayAndController {
 							@Override
 							public void widgetSelected(SelectionEvent e){
 								logInfoToApplicationDisplay("Info: Reverse button has been pressed");
+								//Send the Control Message to VehicleController
+								if(appDrivingMode.equals(manualDrivingModeCode)){
+									try {
+										//Send a warning if the controllerQueue capacity has reached the configured warning threshold
+										float controlQueueCapacityPercent = (((controllerQueueCapacity - controllerQueue.remainingCapacity()) / controllerQueueCapacity) * 100);
+										if(controlQueueCapacityPercent > controllerQueueCapacityWarnPercent){
+											logWarningToApplicationDisplay("Warning: The ControllerQueue has reached "+controlQueueCapacityPercent+" of its capacity. Controls are not being processed fast enough");
+										}
+										ControlMessage controlMessage = new ControlMessage();
+										controlMessage.setSteeringDirection(FeatureMessage.steerReverse);
+										controllerQueue.put(controlMessage);
+										logInfoToApplicationDisplay("Info: Successfully sent a ControlMessage to Steer Reverse");
+									} catch (InterruptedException ex) {
+										logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish ControlMessage to BlockingQueue");						
+									}
+								}
 								//Push the features to BlockingQueue for persistence in case the mode is Manual
 								if(appDrivingMode.equals(manualDrivingModeCode) && (grayscaleFrameData != null)){
-									FeatureList currentfeatureList = new FeatureList();
+									FeatureMessage currentfeatureList = new FeatureMessage();
 									currentfeatureList.setFrameWidth(grayscaleFrameData.width);
 									currentfeatureList.setFrameHeight(grayscaleFrameData.height);
 									currentfeatureList.setPixelDepth(grayscaleFrameData.depth);
 									currentfeatureList.setFramePixelData(grayscaleFrameData.data);
-									currentfeatureList.setSteeringDirection(FeatureList.steerReverse);
+									currentfeatureList.setSteeringDirection(FeatureMessage.steerReverse);
 									
 									try {
 										//Send a warning if the featureQueue capacity has reached the configured warning threshold
@@ -403,7 +517,7 @@ public class DriverDisplayAndController {
 										featureQueue.put(currentfeatureList);
 										logInfoToApplicationDisplay("Info: Successfully sent a "+grayscaleFrameData.width+" X "+grayscaleFrameData.height+" frame for persistance");
 									} catch (InterruptedException ex) {
-										logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish FeatureList to BlockingQueue for Persistance");						
+										logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish FeatureMessage to BlockingQueue for Persistance");						
 									}
 								}				
 							}
@@ -413,14 +527,30 @@ public class DriverDisplayAndController {
 							@Override
 							public void widgetSelected(SelectionEvent e){
 								logInfoToApplicationDisplay("Info: Forward button has been pressed");
+								//Send the Control Message to VehicleController
+								if(appDrivingMode.equals(manualDrivingModeCode)){
+									try {
+										//Send a warning if the controllerQueue capacity has reached the configured warning threshold
+										float controlQueueCapacityPercent = (((controllerQueueCapacity - controllerQueue.remainingCapacity()) / controllerQueueCapacity) * 100);
+										if(controlQueueCapacityPercent > controllerQueueCapacityWarnPercent){
+											logWarningToApplicationDisplay("Warning: The ControllerQueue has reached "+controlQueueCapacityPercent+" of its capacity. Controls are not being processed fast enough");
+										}
+										ControlMessage controlMessage = new ControlMessage();
+										controlMessage.setSteeringDirection(FeatureMessage.steerforward);
+										controllerQueue.put(controlMessage);
+										logInfoToApplicationDisplay("Info: Successfully sent a ControlMessage to Steer Forward");
+									} catch (InterruptedException ex) {
+										logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish ControlMessage to BlockingQueue");						
+									}
+								}
 								//Push the features to BlockingQueue for persistence in case the mode is Manual
 								if(appDrivingMode.equals(manualDrivingModeCode) && (grayscaleFrameData != null)){
-									FeatureList currentfeatureList = new FeatureList();
+									FeatureMessage currentfeatureList = new FeatureMessage();
 									currentfeatureList.setFrameWidth(grayscaleFrameData.width);
 									currentfeatureList.setFrameHeight(grayscaleFrameData.height);
 									currentfeatureList.setPixelDepth(grayscaleFrameData.depth);
 									currentfeatureList.setFramePixelData(grayscaleFrameData.data);
-									currentfeatureList.setSteeringDirection(FeatureList.steerforward);
+									currentfeatureList.setSteeringDirection(FeatureMessage.steerforward);
 									
 									try {
 										//Send a warning if the featureQueue capacity has reached the configured warning threshold
@@ -431,7 +561,7 @@ public class DriverDisplayAndController {
 										featureQueue.put(currentfeatureList);
 										logInfoToApplicationDisplay("Info: Successfully sent a "+grayscaleFrameData.width+" X "+grayscaleFrameData.height+" frame for persistance");
 									} catch (InterruptedException ex) {
-										logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish FeatureList to BlockingQueue for Persistance");						
+										logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish FeatureMessage to BlockingQueue for Persistance");						
 									}
 								}
 							}
@@ -672,15 +802,24 @@ public class DriverDisplayAndController {
 	 */
 	protected static synchronized void updateSensorConnectionStatus(boolean connected){
 		connectedToSensor = connected;
-		if(connected){
-			btnConnectToSensor.setText("Disconnect From Sensor");
-			//Enable direction buttons
-			btnForward.setEnabled(true);
-			btnLeft.setEnabled(true);
-			btnReverse.setEnabled(true);
-			btnRight.setEnabled(true);
+		if(connectedToSensor){
+			btnConnectToSensor.setText("Disconnect");
+			if(connectedToController){
+				//Enable direction buttons
+				btnForward.setEnabled(true);
+				btnLeft.setEnabled(true);
+				btnReverse.setEnabled(true);
+				btnRight.setEnabled(true);
+			}else{
+				//Disable direction buttons
+				btnForward.setEnabled(false);
+				btnLeft.setEnabled(false);
+				btnReverse.setEnabled(false);
+				btnRight.setEnabled(false);
+			}
+
 		}else{
-			btnConnectToSensor.setText("Connect To Sensor");
+			btnConnectToSensor.setText("Connect");
 			//Disable direction buttons
 			btnForward.setEnabled(false);
 			btnLeft.setEnabled(false);
@@ -688,6 +827,37 @@ public class DriverDisplayAndController {
 			btnRight.setEnabled(false);
 		}
 	}
+	
+	/**
+	 * Update the current status of connection to the Arduino / Controller
+	 * @param currentStatus
+	 */
+	protected static synchronized void updateControllerConnectionStatus(boolean connected){
+		connectedToController = connected;
+		if(connectedToController){
+			btnConnectToController.setText("Disconnect");	
+			if(connectedToSensor){
+				//Enable direction buttons
+				btnForward.setEnabled(true);
+				btnLeft.setEnabled(true);
+				btnReverse.setEnabled(true);
+				btnRight.setEnabled(true);
+			}else{
+				//Disable direction buttons
+				btnForward.setEnabled(false);
+				btnLeft.setEnabled(false);
+				btnReverse.setEnabled(false);
+				btnRight.setEnabled(false);
+			}
+		}else{
+			btnConnectToSensor.setText("Connect");
+			//Disable direction buttons
+			btnForward.setEnabled(false);
+			btnLeft.setEnabled(false);
+			btnReverse.setEnabled(false);
+			btnRight.setEnabled(false);
+		}
+	}	
 	
 	/**
 	 * Display the frame received from Sensor Device on screen 
@@ -805,13 +975,13 @@ public class DriverDisplayAndController {
 	 */
 	protected static synchronized void displayTrainingDataSteeringDirection(String steeringDirection){
 		logInfoToApplicationDisplay("Info: SteeringDirection is: "+steeringDirection);
-		if(Integer.valueOf(steeringDirection) == Integer.valueOf(FeatureList.steerforward)){
+		if(Integer.valueOf(steeringDirection) == Integer.valueOf(FeatureMessage.steerforward)){
 			lblTrainingDataSteeringDirection.setImage(SWTResourceManager.getImage(DriverDisplayAndController.class, "/com/vikas/projs/ml/autonomousvehicle/images/Forward.jpg"));
-		}else if(Integer.valueOf(steeringDirection) == Integer.valueOf(FeatureList.steerReverse)){
+		}else if(Integer.valueOf(steeringDirection) == Integer.valueOf(FeatureMessage.steerReverse)){
 			lblTrainingDataSteeringDirection.setImage(SWTResourceManager.getImage(DriverDisplayAndController.class, "/com/vikas/projs/ml/autonomousvehicle/images/Reverse.jpg"));
-		}else if(Integer.valueOf(steeringDirection) == Integer.valueOf(FeatureList.steerLeft)){
+		}else if(Integer.valueOf(steeringDirection) == Integer.valueOf(FeatureMessage.steerLeft)){
 			lblTrainingDataSteeringDirection.setImage(SWTResourceManager.getImage(DriverDisplayAndController.class, "/com/vikas/projs/ml/autonomousvehicle/images/Left.jpg"));
-		}else if(Integer.valueOf(steeringDirection) == Integer.valueOf(FeatureList.steerRight)){
+		}else if(Integer.valueOf(steeringDirection) == Integer.valueOf(FeatureMessage.steerRight)){
 			lblTrainingDataSteeringDirection.setImage(SWTResourceManager.getImage(DriverDisplayAndController.class, "/com/vikas/projs/ml/autonomousvehicle/images/Right.jpg"));
 		}else{
 			logInfoToApplicationDisplay("Error: Unable to understand the captured Steering Direction: "+steeringDirection);

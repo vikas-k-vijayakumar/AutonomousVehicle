@@ -25,14 +25,14 @@ public class SensorClient implements Runnable{
 	private int sensorPort;
 	private Display display;
 	private Thread sensorClientThread;
-	private ArrayBlockingQueue<FeatureList> featureQueue;
+	private ArrayBlockingQueue<FeatureMessage> featureQueue;
 	private String trainingDataDirectory;
 	private boolean persistData;
 	private PersistTrainingData persistTrainingData;
 	private int pixelRowsToStripFromTop;
 	private int pixelRowsToStripFromBottom;
 	
-	public SensorClient(String ipV4Address, int port, Display display, ArrayBlockingQueue<FeatureList> featureQueue, String trainingDataDirectory, boolean persistData, int pixelRowsToStripFromTop, int pixelRowsToStripFromBottom){
+	public SensorClient(String ipV4Address, int port, Display display, ArrayBlockingQueue<FeatureMessage> featureQueue, String trainingDataDirectory, boolean persistData, int pixelRowsToStripFromTop, int pixelRowsToStripFromBottom){
 		this.sensorIPV4Address = ipV4Address;
 		this.sensorPort = port;
 		this.display = display;
@@ -53,11 +53,11 @@ public class SensorClient implements Runnable{
 		connectToSensor();		
 	}
 	
-	public void cancel(){
+	private void cancel(){
 		System.out.println("Info: Current SensorClient Thread will be interuppted");
 		//Stop the Persistence Thread first
 		if(persistTrainingData != null){
-			persistTrainingData.cancel();
+			persistTrainingData.stopPersistance();
 		}
 		sensorClientThread.interrupt();
 	}
@@ -73,9 +73,7 @@ public class SensorClient implements Runnable{
 			} catch (IOException e) {				
 				logErrorToApplicationDisplay(e, "ERROR: IOException when trying to close the DataOutStream");
 			}
-		}
-		
-
+		}		
 		if(dInStream != null){
 			//Disconnect InStream
 			try {

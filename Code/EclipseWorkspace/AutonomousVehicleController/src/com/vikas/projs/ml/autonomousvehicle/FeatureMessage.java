@@ -1,12 +1,12 @@
 package com.vikas.projs.ml.autonomousvehicle;
 
 /**
- * This class defines a feature
+ * This class defines the structure of a feature message
  * 
  * @author Vikas_Vijayakumar
  *
  */
-public class FeatureList {
+public class FeatureMessage {
 
 	private int frameWidth;
 	private int frameHeight;
