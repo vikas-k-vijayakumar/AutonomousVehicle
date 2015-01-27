@@ -16,7 +16,7 @@ public class TestingArduinoConnection {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		connect("COM5");
+		connect("COM8");
 
 	}
 
@@ -35,15 +35,15 @@ public class TestingArduinoConnection {
             if ( commPort instanceof SerialPort )
             {
                 SerialPort serialPort = (SerialPort) commPort;
-                serialPort.setSerialPortParams(57600,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
+                serialPort.setSerialPortParams(9600,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
                 
                 //InputStream in = serialPort.getInputStream();
                 OutputStream out = serialPort.getOutputStream();
                 
                 out.write(0);
                 Thread.sleep(1000);
-                //out.write(1);
-                //Thread.sleep(1000);
+                out.write(1);
+                Thread.sleep(1000);
                 out.write(2);
                 Thread.sleep(1000);
                 out.write(3);

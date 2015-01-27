@@ -52,7 +52,7 @@ public class VehicleController implements Runnable{
             	//Set the Serial Port Parameters. 
             	//First parameter is the Baud Rate which is the data rate in bits per second 
             	//Rest are the number of data bits, stop bits and parity bits respectively
-	            serialPort.setSerialPortParams(57600,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
+	            serialPort.setSerialPortParams(9600,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
 	            //Open an OutputStream on the Serial Port    
 	            serialOutStream = serialPort.getOutputStream();
 	            logInfoToApplicationDisplay("Info: Successfully connected to Controller using Serial Port");
