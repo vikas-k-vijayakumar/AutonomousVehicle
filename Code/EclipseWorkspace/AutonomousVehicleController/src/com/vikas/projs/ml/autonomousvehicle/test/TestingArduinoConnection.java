@@ -16,7 +16,7 @@ public class TestingArduinoConnection {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		connect("COM8");
+		connect("COM4");
 
 	}
 

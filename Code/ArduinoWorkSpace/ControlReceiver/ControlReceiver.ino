@@ -23,54 +23,61 @@ void loop() {
     
     if(commandFromController == 0){
       GoForward();
-      delay(1000);
-      Stop();
+      StopAll();
     }
     else if(commandFromController == 2){
       GoRight();
-      delay(1000);
-      Stop();
+      StopAll();
     }
     else if(commandFromController == 3){
       GoLeft();
-      delay(1000);
-      Stop();
+      StopAll();
     }
     else{
       //Do Nothing
-      Stop();
+      StopAll();
     }
   }
   else{
-   Stop();
+   //StopAll();
   } 
 }
 
 void GoForward(){
   digitalWrite(RearMotorReversePin, LOW);
   digitalWrite(RearMotorForwardPin, HIGH);
+  delay(1000);
+  digitalWrite(RearMotorForwardPin, LOW);
 }
 
 void GoBackward(){
   digitalWrite(RearMotorForwardPin, LOW);
   digitalWrite(RearMotorReversePin, HIGH);
+  delay(1000);
+  digitalWrite(RearMotorReversePin, LOW);
 }
 
 void GoLeft(){
-  Stop();
   digitalWrite(FrontMotorRightPin, LOW);
   digitalWrite(FrontMotorLeftPin, HIGH);
-  GoForward();
+  digitalWrite(RearMotorReversePin, LOW);
+  digitalWrite(RearMotorForwardPin, HIGH);
+  delay(1000);
+  digitalWrite(RearMotorForwardPin, LOW);
+  digitalWrite(FrontMotorLeftPin, LOW);
 }
 
 void GoRight(){
-  Stop();
   digitalWrite(FrontMotorLeftPin, LOW);
   digitalWrite(FrontMotorRightPin, HIGH);
-  GoForward();
+  digitalWrite(RearMotorReversePin, LOW);
+  digitalWrite(RearMotorForwardPin, HIGH);
+  delay(1000);
+  digitalWrite(RearMotorForwardPin, LOW);
+  digitalWrite(FrontMotorRightPin, LOW);
 }
 
-void Stop(){
+void StopAll(){
   digitalWrite(RearMotorReversePin, LOW);
   digitalWrite(RearMotorForwardPin, LOW);
   digitalWrite(FrontMotorLeftPin, LOW);
