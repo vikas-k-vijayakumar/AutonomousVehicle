@@ -195,8 +195,8 @@ public class DriverDisplayAndController {
 		
 		lblSensorVideoOutput = new Label(configurationComposite, SWT.NONE);
 		GridData gd_lblSensorVideoOutput = new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 2);
-		gd_lblSensorVideoOutput.heightHint = 40;
-		gd_lblSensorVideoOutput.widthHint = 93;
+		gd_lblSensorVideoOutput.heightHint = 51;
+		gd_lblSensorVideoOutput.widthHint = 119;
 		lblSensorVideoOutput.setLayoutData(gd_lblSensorVideoOutput);
 		lblSensorVideoOutput.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
 		lblSensorVideoOutput.setText("Sensor Video \r\n    Output");
@@ -311,7 +311,7 @@ public class DriverDisplayAndController {
 		pixelRowsToStripFromBottom.setToolTipText("Eg: 6666");
 		pixelRowsToStripFromBottom.setText("0");
 		
-		btnConnectToSensor = new Button(sensorConfigurationcomposite, SWT.WRAP);
+		btnConnectToSensor = new Button(sensorConfigurationcomposite, SWT.NONE);
 		btnConnectToSensor.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 3, 1));
 		btnConnectToSensor.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		btnConnectToSensor.setText("Connect");
@@ -403,7 +403,7 @@ public class DriverDisplayAndController {
 		
 		navigationControlComposite = new Composite(configurationComposite, SWT.NONE);
 		navigationControlComposite.setLayout(new GridLayout(3, false));
-		GridData gd_navigationControlComposite = new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1);
+		GridData gd_navigationControlComposite = new GridData(SWT.CENTER, SWT.FILL, true, true, 1, 1);
 		gd_navigationControlComposite.heightHint = 123;
 		navigationControlComposite.setLayoutData(gd_navigationControlComposite);
 		
@@ -697,7 +697,10 @@ public class DriverDisplayAndController {
 		new Label(trainingDataReviewConfigComposite, SWT.NONE);
 		
 		Button btnPreviousTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
-		btnPreviousTrainingDataImage.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		GridData gd_btnPreviousTrainingDataImage = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
+		gd_btnPreviousTrainingDataImage.widthHint = 199;
+		gd_btnPreviousTrainingDataImage.heightHint = 30;
+		btnPreviousTrainingDataImage.setLayoutData(gd_btnPreviousTrainingDataImage);
 		btnPreviousTrainingDataImage.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -711,7 +714,9 @@ public class DriverDisplayAndController {
 		btnPreviousTrainingDataImage.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		
 		Button btnNextTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
-		btnNextTrainingDataImage.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		GridData gd_btnNextTrainingDataImage = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
+		gd_btnNextTrainingDataImage.widthHint = 199;
+		btnNextTrainingDataImage.setLayoutData(gd_btnNextTrainingDataImage);
 		btnNextTrainingDataImage.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
