@@ -92,12 +92,14 @@ public class DisplayTrainingData implements Runnable{
 	
 	public void cancel(){
 		try {
-			br.close();
+			if(br != null){
+				br.close();
+				logInfoToApplicationDisplay("Info: Current Display TrainingData thread will be interuppted");
+				displayTrainingDataThread.interrupt();
+			}			
 		} catch (IOException e) {
 			logErrorToApplicationDisplay(e, "ERROR: IO Exception when closing the stream from file "+trainingDataFileName);
 		}
-		logInfoToApplicationDisplay("Info: Current Display TrainingData thread will be interuppted");
-		displayTrainingDataThread.interrupt();
 	}
 	
 	/**

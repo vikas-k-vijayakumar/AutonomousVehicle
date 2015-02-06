@@ -22,6 +22,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 
 /**
  * Implements the functionality required to provide a Front End Desktop application for the Autonomous car project
@@ -104,17 +106,7 @@ public class DriverDisplayAndController {
 	private static final int defaultFrameHeight = 144;
 	private static final int defaultFrameDepth = 8;
 	private static Label lblTrainingDataSteeringDirection;
-	private Label label;
-	private Label label_1;
-	private Label label_2;
-	private Label label_3;
-	private Label label_4;
-	private Label label_5;
-	private Label label_6;
-	private Label label_7;
-	private Label label_8;
 	private Label lblConnectionSetup;
-	private Label label_9;
 	private Composite loggingComposite;
 	private Label lblLogLevel;
 	private static Button chkbtnErrorsWarnings;
@@ -124,6 +116,14 @@ public class DriverDisplayAndController {
 	private Label lblStep_1;
 	private Label lblArduinoPortName;
 	private Text arduinoPortName;
+	private TabFolder tabFolder;
+	private TabItem TrainingReviewTab;
+	private TabItem LiveTab;
+	private Composite sensorConfigurationcomposite;
+	private Composite navigationControlComposite;
+	private Composite trainingDataReviewConfigComposite;
+	private Label lblCapturedTrainingsetNavigation;
+	private Composite trainingDataReviewNavgationDetails;
 
 	/**
 	 * Launch the application.
@@ -170,46 +170,61 @@ public class DriverDisplayAndController {
 		paletteDataGrayscale = new PaletteData(rgbGrayscale);
 		
 		System.out.println("DriverDisplayAndController: About to create contents of the shell");
-		shell.setSize(1206, 741);
+		shell.setSize(1094, 655);
 		shell.setLayout(new GridLayout(4, false));
 		
 		Label lblNewLabel = new Label(shell, SWT.NONE);
 		lblNewLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 4, 1));
 		lblNewLabel.setFont(SWTResourceManager.getFont("Segoe UI", 16, SWT.BOLD));
-		lblNewLabel.setText("Autonomous Vehicle Controller cum Display");
-		new Label(shell, SWT.NONE);
-		new Label(shell, SWT.NONE);
+		lblNewLabel.setText("Autonomous Vehicle Desktop Application");
 		new Label(shell, SWT.NONE);
 		
-		Composite configurationComposite = new Composite(shell, SWT.NONE);
-		GridData gd_configurationComposite = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 2);
-		gd_configurationComposite.heightHint = 365;
-		gd_configurationComposite.widthHint = 553;
-		configurationComposite.setLayoutData(gd_configurationComposite);
+		tabFolder = new TabFolder(shell, SWT.NONE);
+		GridData gd_tabFolder = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_tabFolder.heightHint = 566;
+		gd_tabFolder.widthHint = 664;
+		tabFolder.setLayoutData(gd_tabFolder);
 		
-		Label label_IP = new Label(configurationComposite, SWT.NONE);
-		label_IP.setBounds(255, 104, 124, 17);
-		label_IP.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		label_IP.setText("Sensor IPv4 Address");
+		LiveTab = new TabItem(tabFolder, SWT.NONE);
+		LiveTab.setText("Live");
 		
-		ipV4Address = new Text(configurationComposite, SWT.BORDER);
-		ipV4Address.setBounds(410, 103, 129, 21);
-		ipV4Address.setToolTipText("Eg: 192.168.0.51");
+		Composite configurationComposite = new Composite(tabFolder, SWT.NONE);
+		LiveTab.setControl(configurationComposite);
+		configurationComposite.setLayout(new GridLayout(2, false));
+		new Label(configurationComposite, SWT.NONE);
 		
-		Label label_Port = new Label(configurationComposite, SWT.NONE);
-		label_Port.setBounds(255, 136, 138, 17);
-		label_Port.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		label_Port.setText("Sensor Streaming Port");
+		lblSensorVideoOutput = new Label(configurationComposite, SWT.NONE);
+		GridData gd_lblSensorVideoOutput = new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 2);
+		gd_lblSensorVideoOutput.heightHint = 40;
+		gd_lblSensorVideoOutput.widthHint = 93;
+		lblSensorVideoOutput.setLayoutData(gd_lblSensorVideoOutput);
+		lblSensorVideoOutput.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
+		lblSensorVideoOutput.setText("Sensor Video \r\n    Output");
+		lblSensorVideoOutput.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
 		
-		streamingPort = new Text(configurationComposite, SWT.BORDER);
-		streamingPort.setBounds(444, 135, 95, 21);
-		streamingPort.setToolTipText("Eg: 6666");
-		streamingPort.setText("6666");
+		sensorConfigurationcomposite = new Composite(configurationComposite, SWT.NONE);
+		sensorConfigurationcomposite.setLayout(new GridLayout(3, false));
+		GridData gd_sensorConfigurationcomposite = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 3);
+		gd_sensorConfigurationcomposite.widthHint = 393;
+		gd_sensorConfigurationcomposite.heightHint = 241;
+		sensorConfigurationcomposite.setLayoutData(gd_sensorConfigurationcomposite);
 		
-		final CCombo drivingMode = new CCombo(configurationComposite, SWT.BORDER);
+		lblStep = new Label(sensorConfigurationcomposite, SWT.NONE);
+		lblStep.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		lblStep.setText("Step 1 - Choose \r\nDriving Mode");
+		lblStep.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
+		lblStep.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+		
+		Label lblDrivingMode = new Label(sensorConfigurationcomposite, SWT.NONE);
+		lblDrivingMode.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		lblDrivingMode.setText("Driving Mode");
+		lblDrivingMode.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+		
+		final CCombo drivingMode = new CCombo(sensorConfigurationcomposite, SWT.BORDER);
+		drivingMode.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		drivingMode.setBackground(SWTResourceManager.getColor(255, 250, 205));
 		drivingMode.setEditable(false);
 		drivingMode.setItems(new String[] {manualDrivingModeCode, autoDrivingModeCode});
-		drivingMode.setBounds(444, 33, 95, 21);
 		//Add Selection Listener
 		drivingMode.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -230,209 +245,291 @@ public class DriverDisplayAndController {
 			}
 		});
 		
-		Label lblDrivingMode = new Label(configurationComposite, SWT.NONE);
-		lblDrivingMode.setText("Driving Mode");
-		lblDrivingMode.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		lblDrivingMode.setBounds(255, 33, 138, 17);
+		lblConnectionSetup = new Label(sensorConfigurationcomposite, SWT.NONE);
+		lblConnectionSetup.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		lblConnectionSetup.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
+		lblConnectionSetup.setText("Step 2 - Connect \r\nto Sensor");
+		lblConnectionSetup.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
 		
-		lblTrainingDataDirectory = new Label(configurationComposite, SWT.NONE);
+		Label label_IP = new Label(sensorConfigurationcomposite, SWT.NONE);
+		label_IP.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		label_IP.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+		label_IP.setText("Sensor IPv4 Address");
+		
+		ipV4Address = new Text(sensorConfigurationcomposite, SWT.BORDER);
+		ipV4Address.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		ipV4Address.setBackground(SWTResourceManager.getColor(255, 250, 205));
+		ipV4Address.setToolTipText("Eg: 192.168.0.51");
+		new Label(sensorConfigurationcomposite, SWT.NONE);
+		
+		Label label_Port = new Label(sensorConfigurationcomposite, SWT.NONE);
+		label_Port.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		label_Port.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+		label_Port.setText("Sensor Streaming Port");
+		
+		streamingPort = new Text(sensorConfigurationcomposite, SWT.BORDER);
+		streamingPort.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		streamingPort.setBackground(SWTResourceManager.getColor(255, 250, 205));
+		streamingPort.setToolTipText("Eg: 6666");
+		streamingPort.setText("6666");
+		
+		lblTrainingDataDirectory = new Label(sensorConfigurationcomposite, SWT.NONE);
+		lblTrainingDataDirectory.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
 		lblTrainingDataDirectory.setText("Training \r\nFeatures Dir");
 		lblTrainingDataDirectory.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		lblTrainingDataDirectory.setBounds(255, 170, 76, 38);
 		
-		trainingDataDirectory = new Text(configurationComposite, SWT.BORDER);
+		trainingDataDirectory = new Text(sensorConfigurationcomposite, SWT.BORDER);
+		GridData gd_trainingDataDirectory = new GridData(SWT.FILL, SWT.CENTER, true, true, 2, 1);
+		gd_trainingDataDirectory.widthHint = 253;
+		trainingDataDirectory.setLayoutData(gd_trainingDataDirectory);
+		trainingDataDirectory.setBackground(SWTResourceManager.getColor(255, 250, 205));
 		trainingDataDirectory.setToolTipText("Eg: D:\\Vikas\\TrainingData");
-		trainingDataDirectory.setBounds(337, 169, 202, 21);
 		
-		Label lblPixelStripsFromTop = new Label(configurationComposite, SWT.NONE);
+		Label lblPixelStripsFromTop = new Label(sensorConfigurationcomposite, SWT.NONE);
+		lblPixelStripsFromTop.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 2, 1));
 		lblPixelStripsFromTop.setText("Pixel Rows To Strip from Top");
 		lblPixelStripsFromTop.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		lblPixelStripsFromTop.setBounds(255, 214, 195, 18);
 		
-		Label lblPixelStripsFromBottom = new Label(configurationComposite, SWT.NONE);
-		lblPixelStripsFromBottom.setText("Pixel Rows To Strip from Bottom");
-		lblPixelStripsFromBottom.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		lblPixelStripsFromBottom.setBounds(255, 252, 210, 21);
-		
-		pixelRowsToStripFromTop = new Text(configurationComposite, SWT.BORDER);
+		pixelRowsToStripFromTop = new Text(sensorConfigurationcomposite, SWT.BORDER);
+		GridData gd_pixelRowsToStripFromTop = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
+		gd_pixelRowsToStripFromTop.widthHint = 38;
+		pixelRowsToStripFromTop.setLayoutData(gd_pixelRowsToStripFromTop);
+		pixelRowsToStripFromTop.setBackground(SWTResourceManager.getColor(255, 250, 205));
 		pixelRowsToStripFromTop.setToolTipText("Eg: 6666");
-		pixelRowsToStripFromTop.setBounds(471, 213, 68, 21);
 		pixelRowsToStripFromTop.setText("0");
 		
-		pixelRowsToStripFromBottom = new Text(configurationComposite, SWT.BORDER);
+		Label lblPixelStripsFromBottom = new Label(sensorConfigurationcomposite, SWT.NONE);
+		lblPixelStripsFromBottom.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 2, 1));
+		lblPixelStripsFromBottom.setText("Pixel Rows To Strip from Bottom");
+		lblPixelStripsFromBottom.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+		
+		pixelRowsToStripFromBottom = new Text(sensorConfigurationcomposite, SWT.BORDER);
+		GridData gd_pixelRowsToStripFromBottom = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
+		gd_pixelRowsToStripFromBottom.widthHint = 38;
+		pixelRowsToStripFromBottom.setLayoutData(gd_pixelRowsToStripFromBottom);
+		pixelRowsToStripFromBottom.setBackground(SWTResourceManager.getColor(255, 250, 205));
 		pixelRowsToStripFromBottom.setToolTipText("Eg: 6666");
-		pixelRowsToStripFromBottom.setBounds(471, 251, 68, 21);
 		pixelRowsToStripFromBottom.setText("0");
 		
-		btnConnectToSensor = new Button(configurationComposite, SWT.WRAP);
-		btnConnectToSensor.setBounds(452, 70, 87, 24);
+		btnConnectToSensor = new Button(sensorConfigurationcomposite, SWT.WRAP);
+		btnConnectToSensor.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 3, 1));
 		btnConnectToSensor.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		btnConnectToSensor.setText("Connect");
+		//Register listener for button click
+		btnConnectToSensor.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e){
+				if(connectedToSensor){
+					logInfoToApplicationDisplay("Info: DisconnectFromSensor button has been pressed");
+					//Disconnect from sensor Device
+					if (sensorClient != null){
+						sensorClient.disconnectFromSensor();
+					}
+
+				}else{
+					logInfoToApplicationDisplay("Info: ConnectToSensor button has been pressed");
+					//Validate user inputs
+					if(!Utilities.validateIPv4Address(ipV4Address.getText())){
+						displayMessageOnscreen("Sensor IPv4 Address must have a valid IP V4 Address");
+					}else if(!Utilities.validateInteger(streamingPort.getText(), 5000, 55000)){
+						displayMessageOnscreen("Sensor Streaming Port must have a value between 5000 and 55000");
+					}else if(!Utilities.validateInteger(pixelRowsToStripFromTop.getText(), 0, 176)){
+						displayMessageOnscreen("Pixel Rows to Strip from Top must have a value between 0 and 176");
+					}else if(!Utilities.validateInteger(pixelRowsToStripFromBottom.getText(), 0, 176)){
+						displayMessageOnscreen("Pixel Rows to Strip from Bottom must have a value between 0 and 176");
+					}else if((Integer.valueOf(pixelRowsToStripFromBottom.getText()) + Integer.valueOf(pixelRowsToStripFromBottom.getText())) > 176){
+						displayMessageOnscreen("The sum of Pixel Rows to be stripped from Top and Bottom cannot exceed 176");
+					}else{
+						//Create a thread to start the communication protocol with Sensor Device 
+						if(appDrivingMode.equals(manualDrivingModeCode)){
+							sensorClient = new SensorClient(ipV4Address.getText(),Integer.valueOf(streamingPort.getText()), display, featureQueue,trainingDataDirectory.getText(), true, Integer.valueOf(pixelRowsToStripFromTop.getText()), Integer.valueOf(pixelRowsToStripFromBottom.getText()));
+						}else{
+							sensorClient = new SensorClient(ipV4Address.getText(),Integer.valueOf(streamingPort.getText()), display, featureQueue,trainingDataDirectory.getText(), false, Integer.valueOf(pixelRowsToStripFromTop.getText()), Integer.valueOf(pixelRowsToStripFromBottom.getText()));
+						}
+					}
+				}				
+			}
+		});
+		
+		lblStep_1 = new Label(sensorConfigurationcomposite, SWT.NONE);
+		lblStep_1.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		lblStep_1.setText("Step 3 - Connect \r\nto Controller");
+		lblStep_1.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
+		lblStep_1.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+		
+		lblArduinoPortName = new Label(sensorConfigurationcomposite, SWT.NONE);
+		lblArduinoPortName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		lblArduinoPortName.setText("Serial Port Name");
+		lblArduinoPortName.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+		
+		arduinoPortName = new Text(sensorConfigurationcomposite, SWT.BORDER);
+		GridData gd_arduinoPortName = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
+		gd_arduinoPortName.widthHint = 42;
+		arduinoPortName.setLayoutData(gd_arduinoPortName);
+		arduinoPortName.setBackground(SWTResourceManager.getColor(255, 250, 205));
+		arduinoPortName.setToolTipText("Eg: 6666");
+		arduinoPortName.setText("COM5");
+		
+		btnConnectToController = new Button(sensorConfigurationcomposite, SWT.NONE);
+		btnConnectToController.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 3, 1));
+		btnConnectToController.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(connectedToController){
+					logInfoToApplicationDisplay("Info: DisconnectFromController button has been pressed");
+					//Disconnect from Arduino / Controller
+					if (vehicleController != null){
+						vehicleController.disconnectFromController();
+					}
+
+				}else{
+					logInfoToApplicationDisplay("Info: ConnectToController button has been pressed");
+					//Create a thread to start the communication protocol with Sensor Device 
+					vehicleController = new VehicleController(arduinoPortName.getText(), display, controllerQueue);
+				}
+			}
+		});
+		btnConnectToController.setText("Connect");
+		btnConnectToController.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		
 		lblSensorVideoOut = new Label(configurationComposite, SWT.NONE);
-		lblSensorVideoOut.setBounds(21, 33, 200, 200);
+		GridData gd_lblSensorVideoOut = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_lblSensorVideoOut.widthHint = 45;
+		gd_lblSensorVideoOut.minimumWidth = 200;
+		gd_lblSensorVideoOut.minimumHeight = 200;
+		lblSensorVideoOut.setLayoutData(gd_lblSensorVideoOut);
 		lblSensorVideoOut.setBackground(SWTResourceManager.getColor(176, 224, 230));
 		lblSensorVideoOut.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
 		
-		lblSensorVideoOutput = new Label(configurationComposite, SWT.NONE);
-		lblSensorVideoOutput.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
-		lblSensorVideoOutput.setBounds(56, 10, 140, 17);
-		lblSensorVideoOutput.setText("Sensor Video Output");
-		lblSensorVideoOutput.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+		navigationControlComposite = new Composite(configurationComposite, SWT.NONE);
+		navigationControlComposite.setLayout(new GridLayout(3, false));
+		GridData gd_navigationControlComposite = new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1);
+		gd_navigationControlComposite.heightHint = 123;
+		navigationControlComposite.setLayoutData(gd_navigationControlComposite);
 		
-		lblNavigationControl = new Label(configurationComposite, SWT.NONE);
+		lblNavigationControl = new Label(navigationControlComposite, SWT.NONE);
+		lblNavigationControl.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
+		lblNavigationControl.setSize(165, 0);
 		lblNavigationControl.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
-		lblNavigationControl.setBounds(72, 252, 124, 17);
 		lblNavigationControl.setText("Navigation Control");
 		lblNavigationControl.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+		new Label(navigationControlComposite, SWT.NONE);
 		
 		//Forward Button
-		btnForward = new Button(configurationComposite, SWT.NONE);
-		btnForward.setBounds(112, 271, 34, 40);
+		btnForward = new Button(navigationControlComposite, SWT.NONE);
+		btnForward.setSize(34, 15);
 		btnForward.setFont(SWTResourceManager.getFont("Segoe UI", 16, SWT.BOLD));
 		btnForward.setText(" \u2191 ");
 		btnForward.setEnabled(false);
+		new Label(navigationControlComposite, SWT.NONE);
+		
+		btnLeft = new Button(navigationControlComposite, SWT.NONE);
+		btnLeft.setSize(30, 15);
+		btnLeft.setFont(SWTResourceManager.getFont("Segoe UI", 16, SWT.BOLD));
+		btnLeft.setText("\u2190");
+		btnLeft.setEnabled(false);
+		//Register listener for button click
+		btnLeft.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e){
+				logInfoToApplicationDisplay("Info: Left button has been pressed");
+				//Send the Control Message to VehicleController
+				if(appDrivingMode.equals(manualDrivingModeCode)){
+					try {
+						//Send a warning if the controllerQueue capacity has reached the configured warning threshold
+						float controlQueueCapacityPercent = (((controllerQueueCapacity - controllerQueue.remainingCapacity()) / controllerQueueCapacity) * 100);
+						if(controlQueueCapacityPercent > controllerQueueCapacityWarnPercent){
+							logWarningToApplicationDisplay("Warning: The ControllerQueue has reached "+controlQueueCapacityPercent+" of its capacity. Controls are not being processed fast enough");
+						}
+						ControlMessage controlMessage = new ControlMessage();
+						controlMessage.setSteeringDirection(FeatureMessage.steerLeft);
+						controllerQueue.put(controlMessage);
+						logInfoToApplicationDisplay("Info: Successfully sent a ControlMessage to Steer Left");
+					} catch (InterruptedException ex) {
+						logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish ControlMessage to BlockingQueue");						
+					}
+				}
+				//Push the features to BlockingQueue for persistence in case the mode is Manual
+				if(appDrivingMode.equals(manualDrivingModeCode) && (grayscaleFrameData != null)){
+					FeatureMessage currentfeatureList = new FeatureMessage();
+					currentfeatureList.setFrameWidth(grayscaleFrameData.width);
+					currentfeatureList.setFrameHeight(grayscaleFrameData.height);
+					currentfeatureList.setPixelDepth(grayscaleFrameData.depth);
+					currentfeatureList.setFramePixelData(grayscaleFrameData.data);
+					currentfeatureList.setSteeringDirection(FeatureMessage.steerLeft);
+					
+					try {
+						//Send a warning if the featureQueue capacity has reached the configured warning threshold
+						float featureQueueCapacityPercent = (((featureQueueCapacity - featureQueue.remainingCapacity()) / featureQueueCapacity) * 100);
+						if(featureQueueCapacityPercent > featureQueueCapacityWarnPercent){
+							logWarningToApplicationDisplay("Warning: The FeatureQueue has reached "+featureQueueCapacityPercent+" of its capacity. Features are not being persisted fast enough");
+						}
+						featureQueue.put(currentfeatureList);
+						logInfoToApplicationDisplay("Info: Successfully sent a "+grayscaleFrameData.width+" X "+grayscaleFrameData.height+" frame for persistance");
+					} catch (InterruptedException ex) {
+						logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish FeatureMessage to BlockingQueue for Persistance");						
+					}
+				}				
+			}
+		});
 		
 				
-				btnReverse = new Button(configurationComposite, SWT.NONE);
-				btnReverse.setBounds(112, 317, 34, 40);
+				btnReverse = new Button(navigationControlComposite, SWT.NONE);
+				btnReverse.setSize(34, 15);
 				btnReverse.setFont(SWTResourceManager.getFont("Segoe UI", 16, SWT.BOLD));
 				btnReverse.setText(" \u2193 ");
 				btnReverse.setEnabled(false);
+				//Register listener for button click
+				btnReverse.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent e){
+						logInfoToApplicationDisplay("Info: Reverse button has been pressed");
+						//Send the Control Message to VehicleController
+						if(appDrivingMode.equals(manualDrivingModeCode)){
+							try {
+								//Send a warning if the controllerQueue capacity has reached the configured warning threshold
+								float controlQueueCapacityPercent = (((controllerQueueCapacity - controllerQueue.remainingCapacity()) / controllerQueueCapacity) * 100);
+								if(controlQueueCapacityPercent > controllerQueueCapacityWarnPercent){
+									logWarningToApplicationDisplay("Warning: The ControllerQueue has reached "+controlQueueCapacityPercent+" of its capacity. Controls are not being processed fast enough");
+								}
+								ControlMessage controlMessage = new ControlMessage();
+								controlMessage.setSteeringDirection(FeatureMessage.steerReverse);
+								controllerQueue.put(controlMessage);
+								logInfoToApplicationDisplay("Info: Successfully sent a ControlMessage to Steer Reverse");
+							} catch (InterruptedException ex) {
+								logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish ControlMessage to BlockingQueue");						
+							}
+						}
+						//Push the features to BlockingQueue for persistence in case the mode is Manual
+						if(appDrivingMode.equals(manualDrivingModeCode) && (grayscaleFrameData != null)){
+							FeatureMessage currentfeatureList = new FeatureMessage();
+							currentfeatureList.setFrameWidth(grayscaleFrameData.width);
+							currentfeatureList.setFrameHeight(grayscaleFrameData.height);
+							currentfeatureList.setPixelDepth(grayscaleFrameData.depth);
+							currentfeatureList.setFramePixelData(grayscaleFrameData.data);
+							currentfeatureList.setSteeringDirection(FeatureMessage.steerReverse);
+							
+							try {
+								//Send a warning if the featureQueue capacity has reached the configured warning threshold
+								float featureQueueCapacityPercent = (((featureQueueCapacity - featureQueue.remainingCapacity()) / featureQueueCapacity) * 100);
+								if(featureQueueCapacityPercent > featureQueueCapacityWarnPercent){
+									logWarningToApplicationDisplay("Warning: The FeatureQueue has reached "+featureQueueCapacityPercent+" of its capacity. Features are not being persisted fast enough");
+								}
+								featureQueue.put(currentfeatureList);
+								logInfoToApplicationDisplay("Info: Successfully sent a "+grayscaleFrameData.width+" X "+grayscaleFrameData.height+" frame for persistance");
+							} catch (InterruptedException ex) {
+								logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish FeatureMessage to BlockingQueue for Persistance");						
+							}
+						}				
+					}
+				});
 				
 						
-						btnRight = new Button(configurationComposite, SWT.NONE);
-						btnRight.setBounds(152, 291, 34, 40);
+						btnRight = new Button(navigationControlComposite, SWT.NONE);
+						btnRight.setSize(30, 15);
 						btnRight.setFont(SWTResourceManager.getFont("Segoe UI", 16, SWT.BOLD));
 						btnRight.setText("\u2192");
 						btnRight.setEnabled(false);
-						
-						btnLeft = new Button(configurationComposite, SWT.NONE);
-						btnLeft.setBounds(72, 291, 34, 40);
-						btnLeft.setFont(SWTResourceManager.getFont("Segoe UI", 16, SWT.BOLD));
-						btnLeft.setText("\u2190");
-						btnLeft.setEnabled(false);
-						
-						label = new Label(configurationComposite, SWT.SEPARATOR | SWT.VERTICAL);
-						label.setBounds(241, 10, 2, 243);
-						
-						label_1 = new Label(configurationComposite, SWT.SEPARATOR | SWT.VERTICAL);
-						label_1.setBounds(10, 10, 2, 350);
-						
-						label_2 = new Label(configurationComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
-						label_2.setBounds(10, 358, 533, 2);
-						
-						label_3 = new Label(configurationComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
-						label_3.setBounds(10, 10, 533, 2);
-						
-						label_7 = new Label(configurationComposite, SWT.SEPARATOR);
-						label_7.setBounds(545, 12, 2, 350);
-						
-						lblConnectionSetup = new Label(configurationComposite, SWT.NONE);
-						lblConnectionSetup.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
-						lblConnectionSetup.setText("Step 2 - Connect to Sensor");
-						lblConnectionSetup.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-						lblConnectionSetup.setBounds(255, 73, 168, 17);
-						
-						label_9 = new Label(configurationComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
-						label_9.setBounds(10, 251, 233, 2);
-						
-						lblStep = new Label(configurationComposite, SWT.NONE);
-						lblStep.setText("Step 1 - Choose Driving Mode");
-						lblStep.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
-						lblStep.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-						lblStep.setBounds(255, 10, 200, 17);
-						
-						lblStep_1 = new Label(configurationComposite, SWT.NONE);
-						lblStep_1.setText("Step 3 - Connect to Controller");
-						lblStep_1.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
-						lblStep_1.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-						lblStep_1.setBounds(255, 293, 195, 17);
-						
-						lblArduinoPortName = new Label(configurationComposite, SWT.NONE);
-						lblArduinoPortName.setText("Serial Port Name");
-						lblArduinoPortName.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-						lblArduinoPortName.setBounds(255, 322, 138, 17);
-						
-						arduinoPortName = new Text(configurationComposite, SWT.BORDER);
-						arduinoPortName.setToolTipText("Eg: 6666");
-						arduinoPortName.setText("COM5");
-						arduinoPortName.setBounds(444, 321, 95, 21);
-						
-						Label label_10 = new Label(configurationComposite, SWT.SEPARATOR | SWT.VERTICAL);
-						label_10.setBounds(241, 252, 2, 103);
-						
-						btnConnectToController = new Button(configurationComposite, SWT.NONE);
-						btnConnectToController.addSelectionListener(new SelectionAdapter() {
-							@Override
-							public void widgetSelected(SelectionEvent e) {
-								if(connectedToController){
-									logInfoToApplicationDisplay("Info: DisconnectFromController button has been pressed");
-									//Disconnect from Arduino / Controller
-									if (vehicleController != null){
-										vehicleController.disconnectFromController();
-									}
-
-								}else{
-									logInfoToApplicationDisplay("Info: ConnectToController button has been pressed");
-									//Create a thread to start the communication protocol with Sensor Device 
-									vehicleController = new VehicleController(arduinoPortName.getText(), display, controllerQueue);
-								}
-							}
-						});
-						btnConnectToController.setText("Connect");
-						btnConnectToController.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
-						btnConnectToController.setBounds(452, 289, 87, 24);
-						
-						Label label_11 = new Label(configurationComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
-						label_11.setBounds(293, 65, 212, 2);
-						
-						Label label_12 = new Label(configurationComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
-						label_12.setBounds(293, 279, 212, 2);
-						//Register listener for button click
-						btnLeft.addSelectionListener(new SelectionAdapter() {
-							@Override
-							public void widgetSelected(SelectionEvent e){
-								logInfoToApplicationDisplay("Info: Left button has been pressed");
-								//Send the Control Message to VehicleController
-								if(appDrivingMode.equals(manualDrivingModeCode)){
-									try {
-										//Send a warning if the controllerQueue capacity has reached the configured warning threshold
-										float controlQueueCapacityPercent = (((controllerQueueCapacity - controllerQueue.remainingCapacity()) / controllerQueueCapacity) * 100);
-										if(controlQueueCapacityPercent > controllerQueueCapacityWarnPercent){
-											logWarningToApplicationDisplay("Warning: The ControllerQueue has reached "+controlQueueCapacityPercent+" of its capacity. Controls are not being processed fast enough");
-										}
-										ControlMessage controlMessage = new ControlMessage();
-										controlMessage.setSteeringDirection(FeatureMessage.steerLeft);
-										controllerQueue.put(controlMessage);
-										logInfoToApplicationDisplay("Info: Successfully sent a ControlMessage to Steer Left");
-									} catch (InterruptedException ex) {
-										logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish ControlMessage to BlockingQueue");						
-									}
-								}
-								//Push the features to BlockingQueue for persistence in case the mode is Manual
-								if(appDrivingMode.equals(manualDrivingModeCode) && (grayscaleFrameData != null)){
-									FeatureMessage currentfeatureList = new FeatureMessage();
-									currentfeatureList.setFrameWidth(grayscaleFrameData.width);
-									currentfeatureList.setFrameHeight(grayscaleFrameData.height);
-									currentfeatureList.setPixelDepth(grayscaleFrameData.depth);
-									currentfeatureList.setFramePixelData(grayscaleFrameData.data);
-									currentfeatureList.setSteeringDirection(FeatureMessage.steerLeft);
-									
-									try {
-										//Send a warning if the featureQueue capacity has reached the configured warning threshold
-										float featureQueueCapacityPercent = (((featureQueueCapacity - featureQueue.remainingCapacity()) / featureQueueCapacity) * 100);
-										if(featureQueueCapacityPercent > featureQueueCapacityWarnPercent){
-											logWarningToApplicationDisplay("Warning: The FeatureQueue has reached "+featureQueueCapacityPercent+" of its capacity. Features are not being persisted fast enough");
-										}
-										featureQueue.put(currentfeatureList);
-										logInfoToApplicationDisplay("Info: Successfully sent a "+grayscaleFrameData.width+" X "+grayscaleFrameData.height+" frame for persistance");
-									} catch (InterruptedException ex) {
-										logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish FeatureMessage to BlockingQueue for Persistance");						
-									}
-								}				
-							}
-						});
 						//Register listener for button click
 						btnRight.addSelectionListener(new SelectionAdapter() {
 							@Override
@@ -463,50 +560,6 @@ public class DriverDisplayAndController {
 									currentfeatureList.setPixelDepth(grayscaleFrameData.depth);
 									currentfeatureList.setFramePixelData(grayscaleFrameData.data);
 									currentfeatureList.setSteeringDirection(FeatureMessage.steerRight);
-									
-									try {
-										//Send a warning if the featureQueue capacity has reached the configured warning threshold
-										float featureQueueCapacityPercent = (((featureQueueCapacity - featureQueue.remainingCapacity()) / featureQueueCapacity) * 100);
-										if(featureQueueCapacityPercent > featureQueueCapacityWarnPercent){
-											logWarningToApplicationDisplay("Warning: The FeatureQueue has reached "+featureQueueCapacityPercent+" of its capacity. Features are not being persisted fast enough");
-										}
-										featureQueue.put(currentfeatureList);
-										logInfoToApplicationDisplay("Info: Successfully sent a "+grayscaleFrameData.width+" X "+grayscaleFrameData.height+" frame for persistance");
-									} catch (InterruptedException ex) {
-										logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish FeatureMessage to BlockingQueue for Persistance");						
-									}
-								}				
-							}
-						});
-						//Register listener for button click
-						btnReverse.addSelectionListener(new SelectionAdapter() {
-							@Override
-							public void widgetSelected(SelectionEvent e){
-								logInfoToApplicationDisplay("Info: Reverse button has been pressed");
-								//Send the Control Message to VehicleController
-								if(appDrivingMode.equals(manualDrivingModeCode)){
-									try {
-										//Send a warning if the controllerQueue capacity has reached the configured warning threshold
-										float controlQueueCapacityPercent = (((controllerQueueCapacity - controllerQueue.remainingCapacity()) / controllerQueueCapacity) * 100);
-										if(controlQueueCapacityPercent > controllerQueueCapacityWarnPercent){
-											logWarningToApplicationDisplay("Warning: The ControllerQueue has reached "+controlQueueCapacityPercent+" of its capacity. Controls are not being processed fast enough");
-										}
-										ControlMessage controlMessage = new ControlMessage();
-										controlMessage.setSteeringDirection(FeatureMessage.steerReverse);
-										controllerQueue.put(controlMessage);
-										logInfoToApplicationDisplay("Info: Successfully sent a ControlMessage to Steer Reverse");
-									} catch (InterruptedException ex) {
-										logErrorToApplicationDisplay(ex, "ERROR: InterruptedException when trying to publish ControlMessage to BlockingQueue");						
-									}
-								}
-								//Push the features to BlockingQueue for persistence in case the mode is Manual
-								if(appDrivingMode.equals(manualDrivingModeCode) && (grayscaleFrameData != null)){
-									FeatureMessage currentfeatureList = new FeatureMessage();
-									currentfeatureList.setFrameWidth(grayscaleFrameData.width);
-									currentfeatureList.setFrameHeight(grayscaleFrameData.height);
-									currentfeatureList.setPixelDepth(grayscaleFrameData.depth);
-									currentfeatureList.setFramePixelData(grayscaleFrameData.data);
-									currentfeatureList.setSteeringDirection(FeatureMessage.steerReverse);
 									
 									try {
 										//Send a warning if the featureQueue capacity has reached the configured warning threshold
@@ -566,168 +619,58 @@ public class DriverDisplayAndController {
 								}
 							}
 						});
-						//Register listener for button click
-						btnConnectToSensor.addSelectionListener(new SelectionAdapter() {
-							@Override
-							public void widgetSelected(SelectionEvent e){
-								if(connectedToSensor){
-									logInfoToApplicationDisplay("Info: DisconnectFromSensor button has been pressed");
-									//Disconnect from sensor Device
-									if (sensorClient != null){
-										sensorClient.disconnectFromSensor();
-									}
-
-								}else{
-									logInfoToApplicationDisplay("Info: ConnectToSensor button has been pressed");
-									//Validate user inputs
-									if(!Utilities.validateIPv4Address(ipV4Address.getText())){
-										displayMessageOnscreen("Sensor IPv4 Address must have a valid IP V4 Address");
-									}else if(!Utilities.validateInteger(streamingPort.getText(), 5000, 55000)){
-										displayMessageOnscreen("Sensor Streaming Port must have a value between 5000 and 55000");
-									}else if(!Utilities.validateInteger(pixelRowsToStripFromTop.getText(), 0, 176)){
-										displayMessageOnscreen("Pixel Rows to Strip from Top must have a value between 0 and 176");
-									}else if(!Utilities.validateInteger(pixelRowsToStripFromBottom.getText(), 0, 176)){
-										displayMessageOnscreen("Pixel Rows to Strip from Bottom must have a value between 0 and 176");
-									}else if((Integer.valueOf(pixelRowsToStripFromBottom.getText()) + Integer.valueOf(pixelRowsToStripFromBottom.getText())) > 176){
-										displayMessageOnscreen("The sum of Pixel Rows to be stripped from Top and Bottom cannot exceed 176");
-									}else{
-										//Create a thread to start the communication protocol with Sensor Device 
-										if(appDrivingMode.equals(manualDrivingModeCode)){
-											sensorClient = new SensorClient(ipV4Address.getText(),Integer.valueOf(streamingPort.getText()), display, featureQueue,trainingDataDirectory.getText(), true, Integer.valueOf(pixelRowsToStripFromTop.getText()), Integer.valueOf(pixelRowsToStripFromBottom.getText()));
-										}else{
-											sensorClient = new SensorClient(ipV4Address.getText(),Integer.valueOf(streamingPort.getText()), display, featureQueue,trainingDataDirectory.getText(), false, Integer.valueOf(pixelRowsToStripFromTop.getText()), Integer.valueOf(pixelRowsToStripFromBottom.getText()));
-										}
-									}
-								}				
-							}
-						});
-		new Label(shell, SWT.NONE);
-		new Label(shell, SWT.NONE);
-		new Label(shell, SWT.NONE);
-		new Label(shell, SWT.NONE);
 		
-		loggingComposite = new Composite(shell, SWT.NONE);
-		GridData gd_loggingComposite = new GridData(SWT.CENTER, SWT.CENTER, true, false, 1, 2);
-		gd_loggingComposite.widthHint = 577;
-		gd_loggingComposite.heightHint = 282;
-		loggingComposite.setLayoutData(gd_loggingComposite);
+		TrainingReviewTab = new TabItem(tabFolder, SWT.NONE);
+		TrainingReviewTab.setText("TrainingReview");
 		
-		applicationLog = new StyledText(loggingComposite, SWT.BORDER | SWT.WRAP | SWT.V_SCROLL | SWT.H_SCROLL);
-		applicationLog.setBounds(10, 44, 557, 228);
-		applicationLog.setEditable(false);
-		applicationLog.setEnabled(true);
-		applicationLog.setAlwaysShowScrollBars(true);
-		applicationLog.setTextLimit(100);
+		trainingDataReviewComposite = new Composite(tabFolder, SWT.NONE);
+		TrainingReviewTab.setControl(trainingDataReviewComposite);
+		trainingDataReviewComposite.setLayout(new GridLayout(2, false));
 		
-		Label lblApplicationLog = new Label(loggingComposite, SWT.NONE);
-		lblApplicationLog.setBounds(244, 0, 98, 17);
-		lblApplicationLog.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
-		lblApplicationLog.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		lblApplicationLog.setText("Application Log");
+		trainingDataReviewConfigComposite = new Composite(trainingDataReviewComposite, SWT.NONE);
+		trainingDataReviewConfigComposite.setLayout(new GridLayout(2, false));
+		GridData gd_trainingDataReviewConfigComposite = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_trainingDataReviewConfigComposite.widthHint = 390;
+		trainingDataReviewConfigComposite.setLayoutData(gd_trainingDataReviewConfigComposite);
 		
-		lblLogLevel = new Label(loggingComposite, SWT.NONE);
-		lblLogLevel.setText("Log Level");
-		lblLogLevel.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		lblLogLevel.setBounds(10, 23, 67, 17);
+		lblTrainingDataReviewFrameHeight = new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		lblTrainingDataReviewFrameHeight.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		lblTrainingDataReviewFrameHeight.setText("Frame Height");
+		lblTrainingDataReviewFrameHeight.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
 		
-		chkbtnInfoLogging = new Button(loggingComposite, SWT.CHECK);
-		chkbtnInfoLogging.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if(chkbtnInfoLogging.getSelection()){
-					logInfoToApplicationDisplay("Info: Information logging is enabled");
-					infoLoggingRequired = true;
-				}else{
-					logInfoToApplicationDisplay("Info: Information logging is disabled");
-					infoLoggingRequired = false;
-				}
-			}
-		});
-		chkbtnInfoLogging.setBounds(83, 23, 67, 16);
-		chkbtnInfoLogging.setText("Info");
+		trainingDataReviewFrameHeight = new Text(trainingDataReviewConfigComposite, SWT.BORDER);
+		trainingDataReviewFrameHeight.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		trainingDataReviewFrameHeight.setBackground(SWTResourceManager.getColor(255, 250, 205));
+		trainingDataReviewFrameHeight.setToolTipText("Eg: 192.168.0.51");
+		trainingDataReviewFrameHeight.setText("144");
 		
-		chkbtnErrorsWarnings = new Button(loggingComposite, SWT.CHECK);
-		chkbtnErrorsWarnings.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if(chkbtnErrorsWarnings.getSelection()){
-					logInfoToApplicationDisplay("Info: Errors & Warnings will be logged");
-				}else{
-					logInfoToApplicationDisplay("Info: Errors & Warnings will NOT be logged");
-				}
-			}
-		});
-		chkbtnErrorsWarnings.setEnabled(false);
-		chkbtnErrorsWarnings.setSelection(true);
-		chkbtnErrorsWarnings.setText("Errors, Warnings");
-		chkbtnErrorsWarnings.setBounds(156, 22, 107, 16);
-		new Label(shell, SWT.NONE);
-		
-		trainingDataReviewComposite = new Composite(shell, SWT.NONE);
-		GridData gd_trainingDataReviewComposite = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 2);
-		gd_trainingDataReviewComposite.heightHint = 290;
-		gd_trainingDataReviewComposite.widthHint = 562;
-		trainingDataReviewComposite.setLayoutData(gd_trainingDataReviewComposite);
-		
-		lblTrainingDataReview = new Label(trainingDataReviewComposite, SWT.NONE);
-		lblTrainingDataReview.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		lblTrainingDataReview.setBackground(SWTResourceManager.getColor(176, 224, 230));
-		lblTrainingDataReview.setBounds(21, 23, 200, 200);
-		
-		lblCapturedTrainingData = new Label(trainingDataReviewComposite, SWT.NONE);
-		lblCapturedTrainingData.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
-		lblCapturedTrainingData.setText("Captured Training Data Review");
-		lblCapturedTrainingData.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		lblCapturedTrainingData.setBounds(250, 0, 200, 17);
-		
-		Button btnPreviousTrainingDataImage = new Button(trainingDataReviewComposite, SWT.NONE);
-		btnPreviousTrainingDataImage.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				//Display the PreviousImage in the Training Data File
-				if(displayTrainingData != null){
-					displayTrainingData.displayPreviousImage();
-				}
-			}
-		});
-		btnPreviousTrainingDataImage.setText("Previous Image");
-		btnPreviousTrainingDataImage.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
-		btnPreviousTrainingDataImage.setBounds(250, 185, 116, 38);
-		
-		Button btnNextTrainingDataImage = new Button(trainingDataReviewComposite, SWT.NONE);
-		btnNextTrainingDataImage.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				//Display the NextImage in the Training Data File
-				if(displayTrainingData != null){
-					displayTrainingData.displayNextImage();
-				}
-			}
-		});
-		btnNextTrainingDataImage.setText("Next Image");
-		btnNextTrainingDataImage.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
-		btnNextTrainingDataImage.setBounds(384, 185, 116, 38);
-		
-		lblTrainingFileName = new Label(trainingDataReviewComposite, SWT.NONE);
-		lblTrainingFileName.setText("Training \r\nFile Name");
-		lblTrainingFileName.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		lblTrainingFileName.setBounds(21, 239, 73, 34);
-		
-		trainingFileNameUnderReview = new Text(trainingDataReviewComposite, SWT.BORDER);
-		trainingFileNameUnderReview.setToolTipText("Eg: D:\\Vikas\\TrainingData");
-		trainingFileNameUnderReview.setBounds(100, 252, 347, 21);
-		
-		lblTrainingDataReviewFrameWidth = new Label(trainingDataReviewComposite, SWT.NONE);
+		lblTrainingDataReviewFrameWidth = new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		lblTrainingDataReviewFrameWidth.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
 		lblTrainingDataReviewFrameWidth.setText("Frame Width");
 		lblTrainingDataReviewFrameWidth.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		lblTrainingDataReviewFrameWidth.setBounds(279, 125, 82, 17);
 		
-		trainingDataReviewFrameWidth = new Text(trainingDataReviewComposite, SWT.BORDER);
+		trainingDataReviewFrameWidth = new Text(trainingDataReviewConfigComposite, SWT.BORDER);
+		trainingDataReviewFrameWidth.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		trainingDataReviewFrameWidth.setBackground(SWTResourceManager.getColor(255, 250, 205));
 		trainingDataReviewFrameWidth.setToolTipText("Eg: 192.168.0.51");
-		trainingDataReviewFrameWidth.setBounds(384, 121, 73, 21);
 		trainingDataReviewFrameWidth.setText("176");
 		
-		btnLoadTrainingDataFile = new Button(trainingDataReviewComposite, SWT.NONE);
+		lblTrainingFileName = new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		lblTrainingFileName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		lblTrainingFileName.setText("Training \r\nFile Name");
+		lblTrainingFileName.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+		
+		trainingFileNameUnderReview = new Text(trainingDataReviewConfigComposite, SWT.BORDER);
+		GridData gd_trainingFileNameUnderReview = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
+		gd_trainingFileNameUnderReview.widthHint = 249;
+		trainingFileNameUnderReview.setLayoutData(gd_trainingFileNameUnderReview);
+		trainingFileNameUnderReview.setBackground(SWTResourceManager.getColor(255, 250, 205));
+		trainingFileNameUnderReview.setToolTipText("Eg: D:\\Vikas\\TrainingData");
+		new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		
+		btnLoadTrainingDataFile = new Button(trainingDataReviewConfigComposite, SWT.NONE);
+		btnLoadTrainingDataFile.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 2, 1));
 		btnLoadTrainingDataFile.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -749,36 +692,127 @@ public class DriverDisplayAndController {
 		});
 		btnLoadTrainingDataFile.setToolTipText("Load File");
 		btnLoadTrainingDataFile.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
-		btnLoadTrainingDataFile.setBounds(451, 250, 49, 25);
 		btnLoadTrainingDataFile.setText("Load");
+		new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		new Label(trainingDataReviewConfigComposite, SWT.NONE);
 		
-		lblTrainingDataReviewFrameHeight = new Label(trainingDataReviewComposite, SWT.NONE);
-		lblTrainingDataReviewFrameHeight.setText("Frame Height");
-		lblTrainingDataReviewFrameHeight.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		lblTrainingDataReviewFrameHeight.setBounds(279, 154, 82, 17);
+		Button btnPreviousTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
+		btnPreviousTrainingDataImage.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		btnPreviousTrainingDataImage.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				//Display the PreviousImage in the Training Data File
+				if(displayTrainingData != null){
+					displayTrainingData.displayPreviousImage();
+				}
+			}
+		});
+		btnPreviousTrainingDataImage.setText("Previous TrainingSet");
+		btnPreviousTrainingDataImage.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		
-		trainingDataReviewFrameHeight = new Text(trainingDataReviewComposite, SWT.BORDER);		
-		trainingDataReviewFrameHeight.setToolTipText("Eg: 192.168.0.51");
-		trainingDataReviewFrameHeight.setBounds(384, 150, 73, 21);
-		trainingDataReviewFrameHeight.setText("144");
+		Button btnNextTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
+		btnNextTrainingDataImage.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		btnNextTrainingDataImage.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				//Display the NextImage in the Training Data File
+				if(displayTrainingData != null){
+					displayTrainingData.displayNextImage();
+				}
+			}
+		});
+		btnNextTrainingDataImage.setText("Next TrainingSet");
+		btnNextTrainingDataImage.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		
-		lblTrainingDataSteeringDirection = new Label(trainingDataReviewComposite, SWT.NONE);		
+		trainingDataReviewNavgationDetails = new Composite(trainingDataReviewComposite, SWT.NONE);
+		trainingDataReviewNavgationDetails.setLayout(new GridLayout(1, false));
+		trainingDataReviewNavgationDetails.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		
+		lblCapturedTrainingData = new Label(trainingDataReviewNavgationDetails, SWT.NONE);
+		lblCapturedTrainingData.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
+		lblCapturedTrainingData.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
+		lblCapturedTrainingData.setText("TrainingSet Image");
+		lblCapturedTrainingData.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+		
+		lblTrainingDataReview = new Label(trainingDataReviewNavgationDetails, SWT.NONE);
+		GridData gd_lblTrainingDataReview = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_lblTrainingDataReview.minimumWidth = 200;
+		gd_lblTrainingDataReview.minimumHeight = 200;
+		lblTrainingDataReview.setLayoutData(gd_lblTrainingDataReview);
+		lblTrainingDataReview.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+		lblTrainingDataReview.setBackground(SWTResourceManager.getColor(176, 224, 230));
+		
+		lblCapturedTrainingsetNavigation = new Label(trainingDataReviewNavgationDetails, SWT.NONE);
+		lblCapturedTrainingsetNavigation.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
+		lblCapturedTrainingsetNavigation.setText("TrainingSet Navigation Direction");
+		lblCapturedTrainingsetNavigation.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
+		lblCapturedTrainingsetNavigation.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+		
+		lblTrainingDataSteeringDirection = new Label(trainingDataReviewNavgationDetails, SWT.NONE);
+		lblTrainingDataSteeringDirection.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		lblTrainingDataSteeringDirection.setAlignment(SWT.CENTER);
-		lblTrainingDataSteeringDirection.setBounds(221, 23, 50, 44);
 		
-		label_4 = new Label(trainingDataReviewComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
-		label_4.setBounds(10, 0, 544, 2);
+		loggingComposite = new Composite(shell, SWT.NONE);
+		loggingComposite.setLayout(new GridLayout(5, false));
+		GridData gd_loggingComposite = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+		gd_loggingComposite.widthHint = 339;
+		gd_loggingComposite.heightHint = 568;
+		loggingComposite.setLayoutData(gd_loggingComposite);
 		
-		label_5 = new Label(trainingDataReviewComposite, SWT.SEPARATOR);
-		label_5.setBounds(10, 0, 2, 280);
+		Label lblApplicationLog = new Label(loggingComposite, SWT.NONE);
+		lblApplicationLog.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 5, 1));
+		lblApplicationLog.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
+		lblApplicationLog.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+		lblApplicationLog.setText("Application Log");
 		
-		label_6 = new Label(trainingDataReviewComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
-		label_6.setBounds(10, 278, 544, 2);
+		lblLogLevel = new Label(loggingComposite, SWT.NONE);
+		lblLogLevel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		lblLogLevel.setText("Log Level");
+		lblLogLevel.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+		new Label(loggingComposite, SWT.NONE);
+		new Label(loggingComposite, SWT.NONE);
 		
-		label_8 = new Label(trainingDataReviewComposite, SWT.SEPARATOR);
-		label_8.setBounds(552, 2, 2, 280);
-		new Label(shell, SWT.NONE);
-		new Label(shell, SWT.NONE);
+		chkbtnInfoLogging = new Button(loggingComposite, SWT.CHECK);
+		chkbtnInfoLogging.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		chkbtnInfoLogging.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(chkbtnInfoLogging.getSelection()){
+					logInfoToApplicationDisplay("Info: Information logging is enabled");
+					infoLoggingRequired = true;
+				}else{
+					logInfoToApplicationDisplay("Info: Information logging is disabled");
+					infoLoggingRequired = false;
+				}
+			}
+		});
+		chkbtnInfoLogging.setText("Info");
+		
+		chkbtnErrorsWarnings = new Button(loggingComposite, SWT.CHECK);
+		chkbtnErrorsWarnings.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		chkbtnErrorsWarnings.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(chkbtnErrorsWarnings.getSelection()){
+					logInfoToApplicationDisplay("Info: Errors & Warnings will be logged");
+				}else{
+					logInfoToApplicationDisplay("Info: Errors & Warnings will NOT be logged");
+				}
+			}
+		});
+		chkbtnErrorsWarnings.setEnabled(false);
+		chkbtnErrorsWarnings.setSelection(true);
+		chkbtnErrorsWarnings.setText("Errors, Warnings");
+		
+		applicationLog = new StyledText(loggingComposite, SWT.BORDER | SWT.WRAP | SWT.V_SCROLL | SWT.H_SCROLL);
+		GridData gd_applicationLog = new GridData(SWT.FILL, SWT.FILL, true, true, 5, 1);
+		gd_applicationLog.heightHint = 499;
+		gd_applicationLog.widthHint = 325;
+		applicationLog.setLayoutData(gd_applicationLog);
+		applicationLog.setEditable(false);
+		applicationLog.setEnabled(true);
+		applicationLog.setAlwaysShowScrollBars(true);
+		applicationLog.setTextLimit(100);
 
 	}
 	
