@@ -4,22 +4,22 @@
 %  ------------
 % 
 %  This file contains code that will help train the Neural Network developed for the 
-%  Autonomous Vehicle Project..ural network has one input, output and hidden layer each
+%  Autonomous Vehicle Project.
 %
 %  Developed By: Vikas K Vijayakumar (kvvikas@yahoo.co.in) as part of the AutonomousVehicle Project
 
 %% Initialization
 clear ; close all; clc
 
-%% Setup the Neural Network Layer sizes (Exluding Bias Unit)
+%% Setup the Neural Network Layer sizes (Excluding Bias Unit)
 input_layer_size  = 25344;  % 176x144 Pixel Width x Pixel Height of the Training Set
 hidden_layer_size = 50;   % 50 hidden units
 num_labels = 4;          % 4 possible outputs. 0 for Forward, 1 for Reverse, 2 for Right and 3 for Left
 
-%  Neural Network Training Optimization Paramters
+%  Neural Network Training Optimization Parameters
 %  Maximum Iterations for the Neural Network training
 nnMaxIterations = 100;
-%  Cost and Gradient Regulrization
+%  Cost and Gradient Regularization
 lambda = 0.1;
 
 %% =========== Part 1: Loading Data =============
@@ -27,7 +27,9 @@ lambda = 0.1;
 % Load Training Data
 fprintf('Loading Training Sets ...\n')
 
-load('ex4data1.mat');
+ReadData=dlmread('Data//Captured//AVC_TrainingData_2015-01-17_23-00-35.csv');
+X = ReadData(:, 1:input_layer_size);
+y = ReadData(:,input_layer_size+1);
 m = size(X, 1);
 
 fprintf('Program paused. Press enter to continue.\n');
@@ -72,7 +74,7 @@ fprintf('\nTraining Neural Network... \n')
 options = optimset('MaxIter', nnMaxIterations);
 
 % Create "short hand" for the cost function to be minimized
-costFunction = @(p) nnCostFunction(p, ...
+costFunction = @(p) nnCostAndGradFunction(p, ...
                                    input_layer_size, ...
                                    hidden_layer_size, ...
                                    num_labels, X, y, lambda);
