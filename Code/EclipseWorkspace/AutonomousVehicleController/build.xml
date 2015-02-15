@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<project name="AutonomousVehicleController" default="main" basedir=".">
+  <!-- Sets variables which can later be used. -->
+  <!-- The value of a property is accessed via ${} -->
+  <property name="src.dir" location="src" />
+  <property name="build.dir" location="bin" />
+  <property name="dist.dir" location="dist" />
+  <property name="eclipsePlugin.dir" location="D:/Eclipse/eclipse/plugins" />
+  <property name="jdk.dir" location="C:/Program Files (x86)/Java/jdk1.7.0_71" />
+  
+  <!--Create a classpath container which can be later used in the ant task-->
+  <path id="build.classpath">
+    <fileset dir="${eclipsePlugin.dir}">
+		<include name="**/*.jar" />	
+    </fileset>
+  </path>
+
+  <!-- Deletes the existing build and dist directory-->
+  <target name="clean">
+    <delete dir="${build.dir}" />
+    <delete dir="${dist.dir}" />
+  </target>
+
+  <!-- Creates the  build and dist directory-->
+  <target name="makedir">
+    <mkdir dir="${build.dir}" />
+    <mkdir dir="${dist.dir}" />
+  </target>
+
+  <!-- Compiles the java code (including the usage of library for JUnit -->
+  <target name="compile" depends="clean, makedir">
+    <javac srcdir="${src.dir}" 
+    	destdir="${build.dir}" 
+    	excludes="com/vikas/projs/ml/autonomousvehicle/test/**" 
+    	includeantruntime="false" 
+    	classpathref="build.classpath" 
+    	executable="${jdk.dir}/bin/javac" fork="true" taskname="javac1.7">
+    </javac>
+  </target>
+
+  <!--Creates the deployable jar file  -->
+  <target name="jar" depends="compile">
+    <jar destfile="${dist.dir}\de.vogella.build.test.ant.jar" basedir="${build.dir}">
+      <manifest>
+        <attribute name="Main-Class" value="com.vikas.projs.ml.autonomousvehicle.DriverDisplayAndController" />
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="main" depends="compile, jar">
+    <description>Main target</description>
+  </target>
+
+</project> 
