@@ -48,6 +48,9 @@ public class ProcessSensorData extends ActionBarActivity {
                 Log.i("ProcessSensorData", "ID of the Back Facing Camera = "+String.valueOf(defaultCameraId));
             }
         }
+
+        //Keep the screen on
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override

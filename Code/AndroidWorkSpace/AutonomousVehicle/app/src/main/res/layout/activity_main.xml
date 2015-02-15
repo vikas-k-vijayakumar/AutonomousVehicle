@@ -67,7 +67,8 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/textBoxTopPixelStripNumber"
             android:id="@+id/textViewTopPixelStripNumber"
-            android:textColor="@android:color/black"/>
+            android:textColor="@android:color/black"
+            android:visibility="invisible" />
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -77,7 +78,8 @@
             android:ems="10"
             android:id="@+id/editTextTopPixelStripNumber"
             android:maxLength="5"
-            android:text="@string/defaultTopPixelStripNumber"/>
+            android:text="@string/defaultTopPixelStripNumber"
+            android:visibility="invisible" />
     </LinearLayout>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
@@ -94,7 +96,8 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/textBoxBottomPixelStripNumber"
             android:id="@+id/textViewBottomPixelStripNumber"
-            android:textColor="@android:color/black"/>
+            android:textColor="@android:color/black"
+            android:visibility="invisible" />
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -104,7 +107,8 @@
             android:ems="10"
             android:id="@+id/editTextBottomPixelStripNumber"
             android:maxLength="5"
-            android:text="@string/defaultBottomPixelStripNumber"/>
+            android:text="@string/defaultBottomPixelStripNumber"
+            android:visibility="invisible" />
     </LinearLayout>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"

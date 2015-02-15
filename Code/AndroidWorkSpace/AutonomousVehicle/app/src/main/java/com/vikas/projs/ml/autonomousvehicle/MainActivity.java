@@ -32,8 +32,8 @@ public class MainActivity extends ActionBarActivity {
         Switch performTrainingSwitch = (Switch) findViewById(R.id.switchLiveRun);
         performTrainingSwitch.setChecked(false);
         //The inputs for Top and Bottom pixel rows stripping need to be enabled only for LiveRun and not
-        //when Training
-        if(performTrainingSwitch != null){
+        //when Training. This feature is currently disabled since it maynot be required
+        /*if(performTrainingSwitch != null){
             performTrainingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -49,7 +49,7 @@ public class MainActivity extends ActionBarActivity {
             toggleViewVisibilityForTraining(View.VISIBLE);
         }else{
             toggleViewVisibilityForTraining(View.INVISIBLE);
-        }
+        }*/
     }
 
 
@@ -111,7 +111,7 @@ public class MainActivity extends ActionBarActivity {
      * invisible during a Training and visible during a LiveRun
      * @param visibility
      */
-    private void toggleViewVisibilityForTraining(int visibility){
+    /*private void toggleViewVisibilityForTraining(int visibility){
         Log.i("MainActivity","About to change the Visibility to: "+String.valueOf(visibility));
         TextView textViewTopPixelRows = (TextView) findViewById(R.id.textViewTopPixelStripNumber);
         textViewTopPixelRows.setVisibility(visibility);
@@ -121,5 +121,5 @@ public class MainActivity extends ActionBarActivity {
         textViewBottomPixelRows.setVisibility(visibility);
         EditText editTextBottomPixelRows = (EditText) findViewById(R.id.editTextBottomPixelStripNumber);
         editTextBottomPixelRows.setVisibility(visibility);
-    }
+    }*/
 }
