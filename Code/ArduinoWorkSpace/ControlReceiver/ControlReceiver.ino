@@ -46,23 +46,24 @@ void loop() {
 void GoForward(){
   digitalWrite(RearMotorReversePin, LOW);
   digitalWrite(RearMotorForwardPin, HIGH);
-  delay(1000);
+  delay(200);
   digitalWrite(RearMotorForwardPin, LOW);
 }
 
 void GoBackward(){
   digitalWrite(RearMotorForwardPin, LOW);
   digitalWrite(RearMotorReversePin, HIGH);
-  delay(1000);
+  delay(200);
   digitalWrite(RearMotorReversePin, LOW);
 }
 
 void GoLeft(){
   digitalWrite(FrontMotorRightPin, LOW);
   digitalWrite(FrontMotorLeftPin, HIGH);
+  delay(200);
   digitalWrite(RearMotorReversePin, LOW);
   digitalWrite(RearMotorForwardPin, HIGH);
-  delay(1000);
+  delay(200);
   digitalWrite(RearMotorForwardPin, LOW);
   digitalWrite(FrontMotorLeftPin, LOW);
 }
@@ -70,9 +71,10 @@ void GoLeft(){
 void GoRight(){
   digitalWrite(FrontMotorLeftPin, LOW);
   digitalWrite(FrontMotorRightPin, HIGH);
+  delay(200);
   digitalWrite(RearMotorReversePin, LOW);
   digitalWrite(RearMotorForwardPin, HIGH);
-  delay(1000);
+  delay(200);
   digitalWrite(RearMotorForwardPin, LOW);
   digitalWrite(FrontMotorRightPin, LOW);
 }
