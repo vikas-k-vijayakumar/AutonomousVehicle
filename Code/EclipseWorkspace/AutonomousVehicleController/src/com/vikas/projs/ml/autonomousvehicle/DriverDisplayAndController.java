@@ -312,7 +312,9 @@ public class DriverDisplayAndController {
 		pixelRowsToStripFromBottom.setText("0");
 		
 		btnConnectToSensor = new Button(sensorConfigurationcomposite, SWT.NONE);
-		btnConnectToSensor.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 3, 1));
+		GridData gd_btnConnectToSensor = new GridData(SWT.CENTER, SWT.CENTER, true, true, 3, 1);
+		gd_btnConnectToSensor.widthHint = 130;
+		btnConnectToSensor.setLayoutData(gd_btnConnectToSensor);
 		btnConnectToSensor.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		btnConnectToSensor.setText("Connect");
 		//Register listener for button click
@@ -371,7 +373,9 @@ public class DriverDisplayAndController {
 		arduinoPortName.setText("COM5");
 		
 		btnConnectToController = new Button(sensorConfigurationcomposite, SWT.NONE);
-		btnConnectToController.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 3, 1));
+		GridData gd_btnConnectToController = new GridData(SWT.CENTER, SWT.CENTER, true, true, 3, 1);
+		gd_btnConnectToController.widthHint = 129;
+		btnConnectToController.setLayoutData(gd_btnConnectToController);
 		btnConnectToController.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
