@@ -1,7 +1,7 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>D:\MyProjects\Git\AutonomousVehicle\Executables\JavaDesktopApplication\AutonomousVehicleController.jar</jar>
+  <jar>D:\MyProjects\Git\AutonomousVehicle\Code\EclipseWorkspace\AutonomousVehicleController\dist\AutonomousVehicleController.jar</jar>
   <outfile>D:\MyProjects\Git\AutonomousVehicle\Executables\JavaDesktopApplication\AutonomousVehicleController.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
