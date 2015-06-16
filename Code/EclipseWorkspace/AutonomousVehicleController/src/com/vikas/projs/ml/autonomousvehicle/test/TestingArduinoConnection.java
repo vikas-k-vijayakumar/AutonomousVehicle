@@ -16,7 +16,7 @@ public class TestingArduinoConnection {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		connect("COM4");
+		connect("COM3");
 
 	}
 
@@ -41,12 +41,15 @@ public class TestingArduinoConnection {
                 OutputStream out = serialPort.getOutputStream();
                 
                 out.write(0);
+                //out.write(30);
                 Thread.sleep(1000);
-                out.write(1);
+                //out.write(1);
                 Thread.sleep(1000);
                 out.write(2);
+                //out.write(32);
                 Thread.sleep(1000);
                 out.write(3);
+                //out.write(33);
 
             }
             else
