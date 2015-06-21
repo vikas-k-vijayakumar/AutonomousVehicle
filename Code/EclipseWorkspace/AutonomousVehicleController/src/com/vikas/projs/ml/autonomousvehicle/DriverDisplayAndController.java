@@ -124,6 +124,9 @@ public class DriverDisplayAndController {
 	private Composite trainingDataReviewConfigComposite;
 	private Label lblCapturedTrainingsetNavigation;
 	private Composite trainingDataReviewNavgationDetails;
+	private static Button btnPreviousTrainingDataImage;
+	private static Button btnNextTrainingDataImage;
+	private static Button btnDeleteTrainingDataImage;
 
 	/**
 	 * Launch the application.
@@ -370,7 +373,7 @@ public class DriverDisplayAndController {
 		arduinoPortName.setLayoutData(gd_arduinoPortName);
 		arduinoPortName.setBackground(SWTResourceManager.getColor(255, 250, 205));
 		arduinoPortName.setToolTipText("Eg: 6666");
-		arduinoPortName.setText("COM5");
+		arduinoPortName.setText("COM3");
 		
 		btnConnectToController = new Button(sensorConfigurationcomposite, SWT.NONE);
 		GridData gd_btnConnectToController = new GridData(SWT.CENTER, SWT.CENTER, true, true, 3, 1);
@@ -698,9 +701,24 @@ public class DriverDisplayAndController {
 		btnLoadTrainingDataFile.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		btnLoadTrainingDataFile.setText("Load");
 		new Label(trainingDataReviewConfigComposite, SWT.NONE);
-		new Label(trainingDataReviewConfigComposite, SWT.NONE);
 		
-		Button btnPreviousTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
+		btnDeleteTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
+		btnDeleteTrainingDataImage.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				//Delete the current image in the Training Data File
+				if(displayTrainingData != null){
+					displayTrainingData.deleteCurrentImage();
+				}
+			}
+		});
+		GridData gd_btnDeleteTrainingDataImage = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnDeleteTrainingDataImage.widthHint = 199;
+		btnDeleteTrainingDataImage.setLayoutData(gd_btnDeleteTrainingDataImage);
+		btnDeleteTrainingDataImage.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		btnDeleteTrainingDataImage.setText("Delete Training Set");
+		
+		btnPreviousTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
 		GridData gd_btnPreviousTrainingDataImage = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
 		gd_btnPreviousTrainingDataImage.widthHint = 199;
 		gd_btnPreviousTrainingDataImage.heightHint = 30;
@@ -717,7 +735,7 @@ public class DriverDisplayAndController {
 		btnPreviousTrainingDataImage.setText("Previous TrainingSet");
 		btnPreviousTrainingDataImage.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		
-		Button btnNextTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
+		btnNextTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
 		GridData gd_btnNextTrainingDataImage = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
 		gd_btnNextTrainingDataImage.widthHint = 199;
 		btnNextTrainingDataImage.setLayoutData(gd_btnNextTrainingDataImage);
@@ -1027,7 +1045,7 @@ public class DriverDisplayAndController {
 		}else if(Integer.valueOf(steeringDirection) == Integer.valueOf(FeatureMessage.steerRight)){
 			lblTrainingDataSteeringDirection.setImage(SWTResourceManager.getImage(DriverDisplayAndController.class, "/com/vikas/projs/ml/autonomousvehicle/images/Right.jpg"));
 		}else{
-			logInfoToApplicationDisplay("Error: Unable to understand the captured Steering Direction: "+steeringDirection);
+			logWarningToApplicationDisplay("Warning: Unable to understand the captured Steering Direction: "+steeringDirection);
 		}
 	}
 	
@@ -1037,5 +1055,18 @@ public class DriverDisplayAndController {
 	 */
 	protected static synchronized void displayMessageOnscreen(String message){	
 		MessageDialog.openError(shell, "Error", message);
+	}
+	
+	
+	/**
+	 * Update the button text for previous, current and next image/training set
+	 * @param previous
+	 * @param current
+	 * @param next
+	 */
+	protected static synchronized void updateTrainingDataFrameButtonText(int previous, int current, int next){
+		btnPreviousTrainingDataImage.setText("Previous TrainingSet "+"("+previous+")");
+		btnDeleteTrainingDataImage.setText("Delete Training Set "+"("+current+")");
+		btnNextTrainingDataImage.setText("Next TrainingSet "+"("+next+")");
 	}
 }

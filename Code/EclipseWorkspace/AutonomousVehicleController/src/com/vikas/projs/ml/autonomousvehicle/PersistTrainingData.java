@@ -84,7 +84,7 @@ public class PersistTrainingData implements Runnable{
 					int[] intPixelData = byteToInt(currentFeatureList.getFramePixelData());
 					for(int k=0;k<intPixelData.length;k++){
 						if(skipPixels){
-							if((k < noOfPixelsToSkipAtStart) || (k > pixelNumberToSkipFromAtEnd)){
+							if((k < noOfPixelsToSkipAtStart) || (k >= pixelNumberToSkipFromAtEnd)){
 								//Skip
 							}else{
 								bWriter.write(String.valueOf(intPixelData[k]));
