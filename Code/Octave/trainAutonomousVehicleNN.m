@@ -12,7 +12,7 @@
 clear ; close all; clc
 
 %% Setup the Neural Network Layer sizes (Excluding Bias Unit)
-input_layer_size  = 25344;  % 176x144 Pixel Width x Pixel Height of the Training Set
+input_layer_size  = 18304;  % 176x104 Pixel Width x Pixel Height of the Training Set
 hidden_layer_size = 50;   % 50 hidden units
 num_labels = 4;          % 4 possible outputs. 0 for Forward, 1 for Reverse, 2 for Right and 3 for Left
 
@@ -27,7 +27,7 @@ lambda = 0.1;
 % Load Training Data
 fprintf('Loading Training Sets ...\n')
 
-ReadData=dlmread('Data//Captured//AVC_TrainingData_2015-01-17_23-00-35.csv');
+ReadData=dlmread('Data//Training//AVC_TrainingData_2015-01-17_23-00-35.csv');
 X = ReadData(:, 1:input_layer_size);
 y = ReadData(:,input_layer_size+1);
 m = size(X, 1);

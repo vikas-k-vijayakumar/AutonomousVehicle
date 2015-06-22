@@ -1,1 +1,0 @@
-This is the data captured when the vehicle is going on a road that is of S shape

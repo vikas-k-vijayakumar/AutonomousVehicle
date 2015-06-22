@@ -127,6 +127,9 @@ public class DriverDisplayAndController {
 	private static Button btnPreviousTrainingDataImage;
 	private static Button btnNextTrainingDataImage;
 	private static Button btnDeleteTrainingDataImage;
+	private Button btnGenerateSets;
+	private Composite generateFilesComposite;
+	private Text capturedDataDirectoryName;
 
 	/**
 	 * Launch the application.
@@ -335,15 +338,15 @@ public class DriverDisplayAndController {
 					logInfoToApplicationDisplay("Info: ConnectToSensor button has been pressed");
 					//Validate user inputs
 					if(!Utilities.validateIPv4Address(ipV4Address.getText())){
-						displayMessageOnscreen("Sensor IPv4 Address must have a valid IP V4 Address");
+						displayErrorMessageOnscreen("Sensor IPv4 Address must have a valid IP V4 Address");
 					}else if(!Utilities.validateInteger(streamingPort.getText(), 5000, 55000)){
-						displayMessageOnscreen("Sensor Streaming Port must have a value between 5000 and 55000");
+						displayErrorMessageOnscreen("Sensor Streaming Port must have a value between 5000 and 55000");
 					}else if(!Utilities.validateInteger(pixelRowsToStripFromTop.getText(), 0, 176)){
-						displayMessageOnscreen("Pixel Rows to Strip from Top must have a value between 0 and 176");
+						displayErrorMessageOnscreen("Pixel Rows to Strip from Top must have a value between 0 and 176");
 					}else if(!Utilities.validateInteger(pixelRowsToStripFromBottom.getText(), 0, 176)){
-						displayMessageOnscreen("Pixel Rows to Strip from Bottom must have a value between 0 and 176");
+						displayErrorMessageOnscreen("Pixel Rows to Strip from Bottom must have a value between 0 and 176");
 					}else if((Integer.valueOf(pixelRowsToStripFromBottom.getText()) + Integer.valueOf(pixelRowsToStripFromBottom.getText())) > 176){
-						displayMessageOnscreen("The sum of Pixel Rows to be stripped from Top and Bottom cannot exceed 176");
+						displayErrorMessageOnscreen("The sum of Pixel Rows to be stripped from Top and Bottom cannot exceed 176");
 					}else{
 						//Create a thread to start the communication protocol with Sensor Device 
 						if(appDrivingMode.equals(manualDrivingModeCode)){
@@ -673,20 +676,18 @@ public class DriverDisplayAndController {
 		trainingFileNameUnderReview.setLayoutData(gd_trainingFileNameUnderReview);
 		trainingFileNameUnderReview.setBackground(SWTResourceManager.getColor(255, 250, 205));
 		trainingFileNameUnderReview.setToolTipText("Eg: D:\\Vikas\\TrainingData");
-		new Label(trainingDataReviewConfigComposite, SWT.NONE);
-		new Label(trainingDataReviewConfigComposite, SWT.NONE);
 		
 		btnLoadTrainingDataFile = new Button(trainingDataReviewConfigComposite, SWT.NONE);
-		btnLoadTrainingDataFile.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 2, 1));
+		btnLoadTrainingDataFile.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 2, 2));
 		btnLoadTrainingDataFile.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				logInfoToApplicationDisplay("Info: Button to load Training Data File for review pressed");
 				//Validate User Inputs
 				if(!Utilities.validateInteger(trainingDataReviewFrameWidth.getText(), 0, 176)){
-					displayMessageOnscreen("Training data Frame Width must have a value between 0 and 176");
+					displayErrorMessageOnscreen("Training data Frame Width must have a value between 0 and 176");
 				}else if(!Utilities.validateInteger(trainingDataReviewFrameHeight.getText(), 0, 144)){
-					displayMessageOnscreen("Training data Frame Height must have a value between 0 and 144");
+					displayErrorMessageOnscreen("Training data Frame Height must have a value between 0 and 144");
 				}else{
 					//Cancel any currently running thread
 					if(displayTrainingData != null){
@@ -778,6 +779,33 @@ public class DriverDisplayAndController {
 		lblTrainingDataSteeringDirection = new Label(trainingDataReviewNavgationDetails, SWT.NONE);
 		lblTrainingDataSteeringDirection.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		lblTrainingDataSteeringDirection.setAlignment(SWT.CENTER);
+		
+		generateFilesComposite = new Composite(trainingDataReviewComposite, SWT.NONE);
+		generateFilesComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		generateFilesComposite.setLayout(new GridLayout(1, false));
+		
+		capturedDataDirectoryName = new Text(generateFilesComposite, SWT.BORDER);
+		capturedDataDirectoryName.setToolTipText("Directory where the captured data is present in .csv files");
+		capturedDataDirectoryName.setBackground(SWTResourceManager.getColor(255, 228, 196));
+		capturedDataDirectoryName.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		
+		btnGenerateSets = new Button(generateFilesComposite, SWT.NONE);
+		btnGenerateSets.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				logInfoToApplicationDisplay("Info: Will start generating Training, Cross Validation and Testing data files");
+				if(capturedDataDirectoryName.getText() != null){
+					GenerateMachineLearningDataSets GMLD = new GenerateMachineLearningDataSets();
+					GMLD.createDataFiles(capturedDataDirectoryName.getText(), display);
+				}else{
+					displayErrorMessageOnscreen("Supply a value for the directory where the captured data is present");
+				}
+			}
+		});
+		btnGenerateSets.setSize(349, 30);
+		btnGenerateSets.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		btnGenerateSets.setText("Generate Training, Cross \r\nValidation and Testing sets");
+		new Label(trainingDataReviewComposite, SWT.NONE);
 		
 		loggingComposite = new Composite(shell, SWT.NONE);
 		loggingComposite.setLayout(new GridLayout(5, false));
@@ -1053,8 +1081,16 @@ public class DriverDisplayAndController {
 	 * Used to display message on the screen to the user in a message box / message dialog
 	 * @param message
 	 */
-	protected static synchronized void displayMessageOnscreen(String message){	
+	protected static synchronized void displayErrorMessageOnscreen(String message){	
 		MessageDialog.openError(shell, "Error", message);
+	}
+	
+	/**
+	 * Used to display message on the screen to the user in a message box / message dialog
+	 * @param message
+	 */
+	protected static synchronized void displayInfoMessageOnscreen(String message){	
+		MessageDialog.openInformation(shell, "Info", message);
 	}
 	
 	

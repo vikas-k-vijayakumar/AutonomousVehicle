@@ -40,7 +40,7 @@ public class PersistTrainingData implements Runnable{
 		//Set the TrainingData filename
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
 		String currentDate = dateFormat.format(new Date());
-		this.trainingFileName = "AVC_TrainingData_"+currentDate.substring(0, currentDate.indexOf(" "))+"_"+currentDate.substring(currentDate.indexOf(" ")+1,currentDate.length())+".csv";
+		this.trainingFileName = "AVC_CapturedData_"+currentDate.substring(0, currentDate.indexOf(" "))+"_"+currentDate.substring(currentDate.indexOf(" ")+1,currentDate.length())+".csv";
 		
 		//Create and start a Thread
 		persistTrainingDataThread = new Thread(this);
