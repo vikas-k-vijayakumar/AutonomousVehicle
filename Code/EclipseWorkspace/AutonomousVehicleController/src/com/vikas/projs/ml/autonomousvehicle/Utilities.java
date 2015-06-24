@@ -1,10 +1,16 @@
 package com.vikas.projs.ml.autonomousvehicle;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Generci Utilities
+ * Generic Utilities
  * @author Vikas_Vijayakumar
  *
  */
@@ -40,6 +46,65 @@ public class Utilities {
 	    Pattern pattern = Pattern.compile(ipV4PATTERN);
 	    Matcher matcher = pattern.matcher(ipAddress);
 	    return matcher.matches();
+	}
+	
+	public static void resizeTrainingImage(String trainingFileName, int currentFrameHeight, int currentFrameWidth, int pixelRowsToStripFromTop, int pixelRowsToStripFromBottom) throws IOException{
+		
+		String trainingFileColumnSeperator = ",";
+		File trainingFile = new File(trainingFileName);
+		BufferedReader br = new BufferedReader(new FileReader(trainingFile));
+		
+		File resizedFile = new File(trainingFileName+".tmp");
+		FileWriter fWriter = new FileWriter(resizedFile.getAbsoluteFile());
+		BufferedWriter bWriter = new BufferedWriter(fWriter);
+		resizedFile.createNewFile();
+		
+		String dataSet = null;
+		while((dataSet = br.readLine()) != null ){
+			
+			//Calculate the pixels to be removed based on the number of pixels rows to be removed from top and bottom
+			if((pixelRowsToStripFromTop + pixelRowsToStripFromBottom) >= currentFrameHeight){
+				pixelRowsToStripFromTop = currentFrameHeight;
+				pixelRowsToStripFromBottom = 0;
+			}
+			int noOfPixelsToSkipAtStart = currentFrameWidth * pixelRowsToStripFromTop;
+			int noOfPixelsToSkipAtEnd = currentFrameWidth * pixelRowsToStripFromBottom;
+			int pixelNumberToSkipFromAtEnd = (currentFrameWidth * currentFrameHeight) - noOfPixelsToSkipAtEnd;
+			
+			Boolean skipPixels = false;
+			if((noOfPixelsToSkipAtStart > 0) || (noOfPixelsToSkipAtEnd > 0)){
+				skipPixels = true;
+			}
+			int updatedFrameHeight = currentFrameHeight - (pixelRowsToStripFromTop + pixelRowsToStripFromBottom);
+			
+			//Write every pixel value after converting the byte array into an integer array
+			String[] stringPixelData = dataSet.split(",");
+			for(int k=0;k<stringPixelData.length-1;k++){
+				if(skipPixels){
+					if((k < noOfPixelsToSkipAtStart) || (k >= pixelNumberToSkipFromAtEnd)){
+						//Skip
+					}else{
+						bWriter.write(stringPixelData[k]);
+						bWriter.write(trainingFileColumnSeperator);
+					}
+				}else{
+					bWriter.write(stringPixelData[k]);
+					bWriter.write(trainingFileColumnSeperator);
+				}
+			}			
+			//Write the Steering direction
+			bWriter.write(stringPixelData[stringPixelData.length-1]);
+			bWriter.newLine();
+			
+		}
+		bWriter.flush();
+		fWriter.close();
+		bWriter.close();
+		
+		br.close();
+		
+		trainingFile.delete();
+		resizedFile.renameTo(new File(trainingFileName));
 	}
 
 }

@@ -72,7 +72,7 @@ Theta1_Square=([Theta1_WithoutBias(:)] .^ 2)' * ones(size(Theta1_WithoutBias(:),
 Theta2_Square=([Theta2_WithoutBias(:)] .^ 2)' * ones(size(Theta2_WithoutBias(:),1),1);
 
 CostRegulization=(lambda / (2 * m)) * (Theta1_Square + Theta2_Square);
-J=J+CostRegulization;
+J=J+CostRegulization
 
 
 % Part 2: Use Backpropagation algorithm to compute the gradients
@@ -93,7 +93,7 @@ for t=1:m
 	Y_ForTrainingSet=(Binary_Y_Matrix(t,:))';
 	
 	% Calculate the error in determining the values for Output Layer by comparing the values computed
-	% by using Theta value with the actual Output (y). Then back propogate to compute the error for
+	% by using Theta value with the actual Output (y). Then back propagate to compute the error for
 	% Hidden Layer
 	Error_OutputLayer = (Activation_OutputLayer - Y_ForTrainingSet);
 	Error_HiddenLayer = ((Theta2(:,2:end))' * Error_OutputLayer) .* (sigmoidGradient(Theta1 * Activation_InputLayer));

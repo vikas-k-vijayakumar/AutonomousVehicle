@@ -1,6 +1,7 @@
 package com.vikas.projs.ml.autonomousvehicle;
 
 
+import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -130,6 +131,11 @@ public class DriverDisplayAndController {
 	private Button btnGenerateSets;
 	private Composite generateFilesComposite;
 	private Text capturedDataDirectoryName;
+	private Button btnResizeTrainingFile;
+	private Label lblPixelRowsToStripFromTopTrain;
+	private Label lblPixelRowsToStripFromBotTrain;
+	private Text pixelRowsToStripFromTopTraining;
+	private Text pixelRowsToStripFromBottomTraining;
 
 	/**
 	 * Launch the application.
@@ -638,14 +644,14 @@ public class DriverDisplayAndController {
 		trainingDataReviewComposite.setLayout(new GridLayout(2, false));
 		
 		trainingDataReviewConfigComposite = new Composite(trainingDataReviewComposite, SWT.NONE);
-		trainingDataReviewConfigComposite.setLayout(new GridLayout(2, false));
+		trainingDataReviewConfigComposite.setLayout(new GridLayout(4, false));
 		GridData gd_trainingDataReviewConfigComposite = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		gd_trainingDataReviewConfigComposite.widthHint = 390;
 		trainingDataReviewConfigComposite.setLayoutData(gd_trainingDataReviewConfigComposite);
 		
 		lblTrainingDataReviewFrameHeight = new Label(trainingDataReviewConfigComposite, SWT.NONE);
 		lblTrainingDataReviewFrameHeight.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
-		lblTrainingDataReviewFrameHeight.setText("Frame Height");
+		lblTrainingDataReviewFrameHeight.setText("Frame \r\nHeight");
 		lblTrainingDataReviewFrameHeight.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
 		
 		trainingDataReviewFrameHeight = new Text(trainingDataReviewConfigComposite, SWT.BORDER);
@@ -656,7 +662,7 @@ public class DriverDisplayAndController {
 		
 		lblTrainingDataReviewFrameWidth = new Label(trainingDataReviewConfigComposite, SWT.NONE);
 		lblTrainingDataReviewFrameWidth.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
-		lblTrainingDataReviewFrameWidth.setText("Frame Width");
+		lblTrainingDataReviewFrameWidth.setText("Frame \r\nWidth");
 		lblTrainingDataReviewFrameWidth.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
 		
 		trainingDataReviewFrameWidth = new Text(trainingDataReviewConfigComposite, SWT.BORDER);
@@ -671,14 +677,14 @@ public class DriverDisplayAndController {
 		lblTrainingFileName.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
 		
 		trainingFileNameUnderReview = new Text(trainingDataReviewConfigComposite, SWT.BORDER);
-		GridData gd_trainingFileNameUnderReview = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
+		GridData gd_trainingFileNameUnderReview = new GridData(SWT.LEFT, SWT.CENTER, true, true, 3, 1);
 		gd_trainingFileNameUnderReview.widthHint = 249;
 		trainingFileNameUnderReview.setLayoutData(gd_trainingFileNameUnderReview);
 		trainingFileNameUnderReview.setBackground(SWTResourceManager.getColor(255, 250, 205));
 		trainingFileNameUnderReview.setToolTipText("Eg: D:\\Vikas\\TrainingData");
 		
 		btnLoadTrainingDataFile = new Button(trainingDataReviewConfigComposite, SWT.NONE);
-		btnLoadTrainingDataFile.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 2, 2));
+		btnLoadTrainingDataFile.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 4, 1));
 		btnLoadTrainingDataFile.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -701,7 +707,6 @@ public class DriverDisplayAndController {
 		btnLoadTrainingDataFile.setToolTipText("Load File");
 		btnLoadTrainingDataFile.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		btnLoadTrainingDataFile.setText("Load");
-		new Label(trainingDataReviewConfigComposite, SWT.NONE);
 		
 		btnDeleteTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
 		btnDeleteTrainingDataImage.addSelectionListener(new SelectionAdapter() {
@@ -718,6 +723,9 @@ public class DriverDisplayAndController {
 		btnDeleteTrainingDataImage.setLayoutData(gd_btnDeleteTrainingDataImage);
 		btnDeleteTrainingDataImage.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		btnDeleteTrainingDataImage.setText("Delete Training Set");
+		new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		new Label(trainingDataReviewConfigComposite, SWT.NONE);
 		
 		btnPreviousTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
 		GridData gd_btnPreviousTrainingDataImage = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
@@ -733,8 +741,11 @@ public class DriverDisplayAndController {
 				}
 			}
 		});
-		btnPreviousTrainingDataImage.setText("Previous TrainingSet");
+		btnPreviousTrainingDataImage.setText("Previous Training Set");
 		btnPreviousTrainingDataImage.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		new Label(trainingDataReviewConfigComposite, SWT.NONE);
 		
 		btnNextTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
 		GridData gd_btnNextTrainingDataImage = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
@@ -751,6 +762,62 @@ public class DriverDisplayAndController {
 		});
 		btnNextTrainingDataImage.setText("Next TrainingSet");
 		btnNextTrainingDataImage.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		
+		lblPixelRowsToStripFromTopTrain = new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		lblPixelRowsToStripFromTopTrain.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		lblPixelRowsToStripFromTopTrain.setText("Pixel Rows to \r\nStrip from Top");
+		
+		pixelRowsToStripFromTopTraining = new Text(trainingDataReviewConfigComposite, SWT.BORDER);
+		pixelRowsToStripFromTopTraining.setBackground(SWTResourceManager.getColor(245, 245, 220));
+		pixelRowsToStripFromTopTraining.setText("0");
+		GridData gd_pixelRowsToStripFromTopTraining = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
+		gd_pixelRowsToStripFromTopTraining.widthHint = 28;
+		pixelRowsToStripFromTopTraining.setLayoutData(gd_pixelRowsToStripFromTopTraining);
+		new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		
+		lblPixelRowsToStripFromBotTrain = new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		lblPixelRowsToStripFromBotTrain.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		lblPixelRowsToStripFromBotTrain.setText("Pixel Rows to \r\nStrip from Bottom");
+		
+		pixelRowsToStripFromBottomTraining = new Text(trainingDataReviewConfigComposite, SWT.BORDER);
+		pixelRowsToStripFromBottomTraining.setBackground(SWTResourceManager.getColor(245, 245, 220));
+		pixelRowsToStripFromBottomTraining.setText("0");
+		GridData gd_pixelRowsToStripFromBottomTraining = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
+		gd_pixelRowsToStripFromBottomTraining.widthHint = 27;
+		pixelRowsToStripFromBottomTraining.setLayoutData(gd_pixelRowsToStripFromBottomTraining);
+		new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		
+		btnResizeTrainingFile = new Button(trainingDataReviewConfigComposite, SWT.NONE);
+		btnResizeTrainingFile.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 4, 1));
+		btnResizeTrainingFile.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				logInfoToApplicationDisplay("Info: Button to Resize Training Data File pressed");
+				//Validate User Inputs
+				if(!Utilities.validateInteger(String.valueOf((Integer.valueOf(pixelRowsToStripFromTopTraining.getText()) + Integer.valueOf(pixelRowsToStripFromBottomTraining.getText()))), 0, Integer.valueOf(trainingDataReviewFrameHeight.getText()))){
+					displayErrorMessageOnscreen("Sum of pixels rows to be stripped from top and bottom cannot exceed the current image height");
+				}else{
+					//Cancel any currently running thread
+					if(displayTrainingData != null){
+						displayTrainingData.cancel();
+					}
+					//Resize file
+					try{
+						Utilities.resizeTrainingImage(trainingFileNameUnderReview.getText(), Integer.valueOf(trainingDataReviewFrameHeight.getText()), Integer.valueOf(trainingDataReviewFrameWidth.getText()), Integer.valueOf(pixelRowsToStripFromTopTraining.getText()), Integer.valueOf(pixelRowsToStripFromBottomTraining.getText()));
+						displayInfoMessageOnscreen("Successfully finished resizing the images in the file");
+					}catch (IOException e1){
+						logErrorToApplicationDisplay(e1, "ERROR: IOException when trying to executing the resize");
+					}
+				}
+			}
+		});
+		btnResizeTrainingFile.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		btnResizeTrainingFile.setText("Resize Training Image");
 		
 		trainingDataReviewNavgationDetails = new Composite(trainingDataReviewComposite, SWT.NONE);
 		trainingDataReviewNavgationDetails.setLayout(new GridLayout(1, false));

@@ -12,34 +12,34 @@
 clear ; close all; clc
 
 %% Setup the Neural Network Layer sizes (Excluding Bias Unit)
-input_layer_size  = 18304;  % 176x104 Pixel Width x Pixel Height of the Training Set
-hidden_layer_size = 50;   % 50 hidden units
-num_labels = 4;          % 4 possible outputs. 0 for Forward, 1 for Reverse, 2 for Right and 3 for Left
+input_layer_size  = 11264;  % 176x104 Pixel Width x Pixel Height of the Training Set
+hidden_layer_size = 80;   % 50 hidden units
+num_labels = 3;          % 3 possible outputs. 0 for Forward, 2 for Right and 3 for Left. 1 for Reverse is currently ignored
 
 %  Neural Network Training Optimization Parameters
 %  Maximum Iterations for the Neural Network training
-nnMaxIterations = 100;
+nnMaxIterations = 30;
 %  Cost and Gradient Regularization
-lambda = 0.1;
+lambda = 0.01;
 
 %% =========== Part 1: Loading Data =============
 
 % Load Training Data
-fprintf('Loading Training Sets ...\n')
+printf("Loading Training Sets ...\n");
 
-ReadData=dlmread('Data//Training//AVC_TrainingData_2015-01-17_23-00-35.csv');
+ReadData=dlmread('Data//Training//AVC_TrainingData_2015-06-24_10-42-18_Resized-64-x-176.csv');
 X = ReadData(:, 1:input_layer_size);
 y = ReadData(:,input_layer_size+1);
 m = size(X, 1);
 
-fprintf('Program paused. Press enter to continue.\n');
+printf("Program paused. Press enter to continue.\n");
 pause;
 
 
 %% ================ Part 2: Initializing Parameters ================
 %  Randomly initiaize the weights of the Neural Network
 
-fprintf('\nInitializing Neural Network Parameters ...\n')
+printf("\nInitializing Neural Network Parameters ...\n");
 
 initial_Theta1 = randInitializeWeights(input_layer_size, hidden_layer_size);
 initial_Theta2 = randInitializeWeights(hidden_layer_size, num_labels);
@@ -51,14 +51,14 @@ initial_nn_params = [initial_Theta1(:) ; initial_Theta2(:)];
 %% =============== Part 3: Checking Gradients ===============
 %  check if the Gradient Calculations are correct. This piece of code needs to be run only
 %  to verify if the Cost and Gradient computation algorithm is implemented correctly.
-%
+% Verified that its working correctly, hence commenting
 
-fprintf('\nChecking Backpropagation (w/ Regularization) ... \n')
+% printf("\nChecking Backpropagation (w/ Regularization) ... \n");
 
-%  Check gradients by running checkNNGradients  with a lambda = 3
-checkNNGradients(3);
+% Check gradients by running checkNNGradients  with a lambda = 3
+% checkNNGradients(3);
 
-fprintf('Program paused. Press enter to continue.\n');
+printf("Program paused. Press enter to continue.\n");
 pause;
 
 
@@ -68,7 +68,7 @@ pause;
 %  advanced optimizer is able to train the cost functions efficiently as
 %  long as they are provided with the gradient computations.
 %
-fprintf('\nTraining Neural Network... \n')
+printf("\nTraining Neural Network... \n");
 
 %  Set the Options
 options = optimset('MaxIter', nnMaxIterations);
@@ -90,7 +90,7 @@ Theta1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
 Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):end), ...
                  num_labels, (hidden_layer_size + 1));
 
-fprintf('Training Complete. Program paused. Press enter to continue.\n');
+printf("Training Complete. Program paused. Press enter to continue.\n");
 pause;
 
 
@@ -99,7 +99,15 @@ pause;
 %  training set. This can be used to compute the training set accuracy.
 
 predictedLabels = predict(Theta1, Theta2, X);
-trainingAccuracyPercentage = mean(double(pred == y)) * 100;
-fprintf('\nTraining Set Accuracy: %f\n', trainingAccuracyPercentage);
+trainingAccuracyPercentage = mean(double(predictedLabels == y)) * 100;
+printf("\nTraining Set Accuracy: %f\n", trainingAccuracyPercentage);
+
+
+%% ================= Part 5: Save weights =================
+%  Save the weights / activations of the various nodes in the layers
+%  of the neural network
+
+save -ascii NNWeights_Theta1.txt Theta1;
+save -ascii NNWeights_Theta2.txt Theta2;
 
 
