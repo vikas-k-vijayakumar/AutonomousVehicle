@@ -129,13 +129,26 @@ public class DriverDisplayAndController {
 	private static Button btnNextTrainingDataImage;
 	private static Button btnDeleteTrainingDataImage;
 	private Button btnGenerateSets;
-	private Composite generateFilesComposite;
+	private Composite predictionComposite;
 	private Text capturedDataDirectoryName;
 	private Button btnResizeTrainingFile;
 	private Label lblPixelRowsToStripFromTopTrain;
 	private Label lblPixelRowsToStripFromBotTrain;
 	private Text pixelRowsToStripFromTopTraining;
 	private Text pixelRowsToStripFromBottomTraining;
+	private Label lblPredictedTrainingsetNavigation;
+	private Label lblTrainingDataPredictedSteeringDirection;
+	private Label lblPredictNoOfHiddenLayers;
+	private Label lblPredictWeightsForInputLayer;
+	private Label lblPredictWeightsForFirstHiddenLayer;
+	private Label lblPredictWeightsForSecondHiddenLayer;
+	private Label lblPredictWeightsForThirdHiddenLayer;
+	private Label lblInputsForPrediction;
+	private Text textPredictWeightsForInputLayer;
+	private Text textPredictWeightsForSecondHiddenLayer;
+	private Text textPredictWeightsForFirstHiddenLayer;
+	private Text textPredictWeightsForThirdHiddenLayer;
+	private Text textPredictNumberOfHiddenLayers;
 
 	/**
 	 * Launch the application.
@@ -637,7 +650,7 @@ public class DriverDisplayAndController {
 						});
 		
 		TrainingReviewTab = new TabItem(tabFolder, SWT.NONE);
-		TrainingReviewTab.setText("TrainingReview");
+		TrainingReviewTab.setText("Training and Prediction Review");
 		
 		trainingDataReviewComposite = new Composite(tabFolder, SWT.NONE);
 		TrainingReviewTab.setControl(trainingDataReviewComposite);
@@ -677,7 +690,7 @@ public class DriverDisplayAndController {
 		lblTrainingFileName.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
 		
 		trainingFileNameUnderReview = new Text(trainingDataReviewConfigComposite, SWT.BORDER);
-		GridData gd_trainingFileNameUnderReview = new GridData(SWT.LEFT, SWT.CENTER, true, true, 3, 1);
+		GridData gd_trainingFileNameUnderReview = new GridData(SWT.FILL, SWT.CENTER, true, true, 3, 1);
 		gd_trainingFileNameUnderReview.widthHint = 249;
 		trainingFileNameUnderReview.setLayoutData(gd_trainingFileNameUnderReview);
 		trainingFileNameUnderReview.setBackground(SWTResourceManager.getColor(255, 250, 205));
@@ -708,28 +721,9 @@ public class DriverDisplayAndController {
 		btnLoadTrainingDataFile.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		btnLoadTrainingDataFile.setText("Load");
 		
-		btnDeleteTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
-		btnDeleteTrainingDataImage.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				//Delete the current image in the Training Data File
-				if(displayTrainingData != null){
-					displayTrainingData.deleteCurrentImage();
-				}
-			}
-		});
-		GridData gd_btnDeleteTrainingDataImage = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_btnDeleteTrainingDataImage.widthHint = 199;
-		btnDeleteTrainingDataImage.setLayoutData(gd_btnDeleteTrainingDataImage);
-		btnDeleteTrainingDataImage.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
-		btnDeleteTrainingDataImage.setText("Delete Training Set");
-		new Label(trainingDataReviewConfigComposite, SWT.NONE);
-		new Label(trainingDataReviewConfigComposite, SWT.NONE);
-		new Label(trainingDataReviewConfigComposite, SWT.NONE);
-		
 		btnPreviousTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
-		GridData gd_btnPreviousTrainingDataImage = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
-		gd_btnPreviousTrainingDataImage.widthHint = 199;
+		GridData gd_btnPreviousTrainingDataImage = new GridData(SWT.RIGHT, SWT.CENTER, true, true, 2, 1);
+		gd_btnPreviousTrainingDataImage.widthHint = 192;
 		gd_btnPreviousTrainingDataImage.heightHint = 30;
 		btnPreviousTrainingDataImage.setLayoutData(gd_btnPreviousTrainingDataImage);
 		btnPreviousTrainingDataImage.addSelectionListener(new SelectionAdapter() {
@@ -743,12 +737,9 @@ public class DriverDisplayAndController {
 		});
 		btnPreviousTrainingDataImage.setText("Previous Training Set");
 		btnPreviousTrainingDataImage.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
-		new Label(trainingDataReviewConfigComposite, SWT.NONE);
-		new Label(trainingDataReviewConfigComposite, SWT.NONE);
-		new Label(trainingDataReviewConfigComposite, SWT.NONE);
 		
 		btnNextTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
-		GridData gd_btnNextTrainingDataImage = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
+		GridData gd_btnNextTrainingDataImage = new GridData(SWT.LEFT, SWT.CENTER, true, true, 2, 1);
 		gd_btnNextTrainingDataImage.widthHint = 199;
 		btnNextTrainingDataImage.setLayoutData(gd_btnNextTrainingDataImage);
 		btnNextTrainingDataImage.addSelectionListener(new SelectionAdapter() {
@@ -762,9 +753,22 @@ public class DriverDisplayAndController {
 		});
 		btnNextTrainingDataImage.setText("Next TrainingSet");
 		btnNextTrainingDataImage.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
-		new Label(trainingDataReviewConfigComposite, SWT.NONE);
-		new Label(trainingDataReviewConfigComposite, SWT.NONE);
-		new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		
+		btnDeleteTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
+		btnDeleteTrainingDataImage.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				//Delete the current image in the Training Data File
+				if(displayTrainingData != null){
+					displayTrainingData.deleteCurrentImage();
+				}
+			}
+		});
+		GridData gd_btnDeleteTrainingDataImage = new GridData(SWT.CENTER, SWT.CENTER, false, false, 4, 1);
+		gd_btnDeleteTrainingDataImage.widthHint = 199;
+		btnDeleteTrainingDataImage.setLayoutData(gd_btnDeleteTrainingDataImage);
+		btnDeleteTrainingDataImage.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		btnDeleteTrainingDataImage.setText("Delete Training Set");
 		
 		lblPixelRowsToStripFromTopTrain = new Label(trainingDataReviewConfigComposite, SWT.NONE);
 		lblPixelRowsToStripFromTopTrain.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
@@ -776,8 +780,6 @@ public class DriverDisplayAndController {
 		GridData gd_pixelRowsToStripFromTopTraining = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
 		gd_pixelRowsToStripFromTopTraining.widthHint = 28;
 		pixelRowsToStripFromTopTraining.setLayoutData(gd_pixelRowsToStripFromTopTraining);
-		new Label(trainingDataReviewConfigComposite, SWT.NONE);
-		new Label(trainingDataReviewConfigComposite, SWT.NONE);
 		
 		lblPixelRowsToStripFromBotTrain = new Label(trainingDataReviewConfigComposite, SWT.NONE);
 		lblPixelRowsToStripFromBotTrain.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
@@ -789,8 +791,6 @@ public class DriverDisplayAndController {
 		GridData gd_pixelRowsToStripFromBottomTraining = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
 		gd_pixelRowsToStripFromBottomTraining.widthHint = 27;
 		pixelRowsToStripFromBottomTraining.setLayoutData(gd_pixelRowsToStripFromBottomTraining);
-		new Label(trainingDataReviewConfigComposite, SWT.NONE);
-		new Label(trainingDataReviewConfigComposite, SWT.NONE);
 		
 		btnResizeTrainingFile = new Button(trainingDataReviewConfigComposite, SWT.NONE);
 		btnResizeTrainingFile.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 4, 1));
@@ -819,44 +819,15 @@ public class DriverDisplayAndController {
 		btnResizeTrainingFile.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		btnResizeTrainingFile.setText("Resize Training Image");
 		
-		trainingDataReviewNavgationDetails = new Composite(trainingDataReviewComposite, SWT.NONE);
-		trainingDataReviewNavgationDetails.setLayout(new GridLayout(1, false));
-		trainingDataReviewNavgationDetails.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		
-		lblCapturedTrainingData = new Label(trainingDataReviewNavgationDetails, SWT.NONE);
-		lblCapturedTrainingData.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
-		lblCapturedTrainingData.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
-		lblCapturedTrainingData.setText("TrainingSet Image");
-		lblCapturedTrainingData.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		
-		lblTrainingDataReview = new Label(trainingDataReviewNavgationDetails, SWT.NONE);
-		GridData gd_lblTrainingDataReview = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-		gd_lblTrainingDataReview.minimumWidth = 200;
-		gd_lblTrainingDataReview.minimumHeight = 200;
-		lblTrainingDataReview.setLayoutData(gd_lblTrainingDataReview);
-		lblTrainingDataReview.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		lblTrainingDataReview.setBackground(SWTResourceManager.getColor(176, 224, 230));
-		
-		lblCapturedTrainingsetNavigation = new Label(trainingDataReviewNavgationDetails, SWT.NONE);
-		lblCapturedTrainingsetNavigation.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
-		lblCapturedTrainingsetNavigation.setText("TrainingSet Navigation Direction");
-		lblCapturedTrainingsetNavigation.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
-		lblCapturedTrainingsetNavigation.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
-		
-		lblTrainingDataSteeringDirection = new Label(trainingDataReviewNavgationDetails, SWT.NONE);
-		lblTrainingDataSteeringDirection.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		lblTrainingDataSteeringDirection.setAlignment(SWT.CENTER);
-		
-		generateFilesComposite = new Composite(trainingDataReviewComposite, SWT.NONE);
-		generateFilesComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		generateFilesComposite.setLayout(new GridLayout(1, false));
-		
-		capturedDataDirectoryName = new Text(generateFilesComposite, SWT.BORDER);
+		capturedDataDirectoryName = new Text(trainingDataReviewConfigComposite, SWT.BORDER);
+		capturedDataDirectoryName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 4, 1));
 		capturedDataDirectoryName.setToolTipText("Directory where the captured data is present in .csv files");
 		capturedDataDirectoryName.setBackground(SWTResourceManager.getColor(255, 228, 196));
-		capturedDataDirectoryName.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		
-		btnGenerateSets = new Button(generateFilesComposite, SWT.NONE);
+		btnGenerateSets = new Button(trainingDataReviewConfigComposite, SWT.NONE);
+		GridData gd_btnGenerateSets = new GridData(SWT.CENTER, SWT.CENTER, false, false, 4, 1);
+		gd_btnGenerateSets.widthHint = 382;
+		btnGenerateSets.setLayoutData(gd_btnGenerateSets);
 		btnGenerateSets.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -872,7 +843,105 @@ public class DriverDisplayAndController {
 		btnGenerateSets.setSize(349, 30);
 		btnGenerateSets.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		btnGenerateSets.setText("Generate Training, Cross \r\nValidation and Testing sets");
-		new Label(trainingDataReviewComposite, SWT.NONE);
+		
+		trainingDataReviewNavgationDetails = new Composite(trainingDataReviewComposite, SWT.NONE);
+		trainingDataReviewNavgationDetails.setLayout(new GridLayout(2, false));
+		trainingDataReviewNavgationDetails.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		
+		lblCapturedTrainingData = new Label(trainingDataReviewNavgationDetails, SWT.NONE);
+		lblCapturedTrainingData.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 2, 1));
+		lblCapturedTrainingData.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
+		lblCapturedTrainingData.setText("TrainingSet Image");
+		lblCapturedTrainingData.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+		
+		lblTrainingDataReview = new Label(trainingDataReviewNavgationDetails, SWT.NONE);
+		GridData gd_lblTrainingDataReview = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+		gd_lblTrainingDataReview.widthHint = 255;
+		gd_lblTrainingDataReview.minimumWidth = 200;
+		gd_lblTrainingDataReview.minimumHeight = 200;
+		lblTrainingDataReview.setLayoutData(gd_lblTrainingDataReview);
+		lblTrainingDataReview.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.BOLD));
+		lblTrainingDataReview.setBackground(SWTResourceManager.getColor(176, 224, 230));
+		
+		lblCapturedTrainingsetNavigation = new Label(trainingDataReviewNavgationDetails, SWT.NONE);
+		GridData gd_lblCapturedTrainingsetNavigation = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
+		gd_lblCapturedTrainingsetNavigation.widthHint = 64;
+		lblCapturedTrainingsetNavigation.setLayoutData(gd_lblCapturedTrainingsetNavigation);
+		lblCapturedTrainingsetNavigation.setText("Actual\r\nDirection");
+		lblCapturedTrainingsetNavigation.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
+		lblCapturedTrainingsetNavigation.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		
+		lblPredictedTrainingsetNavigation = new Label(trainingDataReviewNavgationDetails, SWT.NONE);
+		lblPredictedTrainingsetNavigation.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		lblPredictedTrainingsetNavigation.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		lblPredictedTrainingsetNavigation.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
+		lblPredictedTrainingsetNavigation.setText("Predicted\r\nDirection");
+		
+		lblTrainingDataSteeringDirection = new Label(trainingDataReviewNavgationDetails, SWT.NONE);
+		GridData gd_lblTrainingDataSteeringDirection = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_lblTrainingDataSteeringDirection.widthHint = 133;
+		lblTrainingDataSteeringDirection.setLayoutData(gd_lblTrainingDataSteeringDirection);
+		lblTrainingDataSteeringDirection.setAlignment(SWT.CENTER);
+		
+		lblTrainingDataPredictedSteeringDirection = new Label(trainingDataReviewNavgationDetails, SWT.NONE);
+		GridData gd_lblTrainingDataPredictedSteeringDirection = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
+		gd_lblTrainingDataPredictedSteeringDirection.widthHint = -29;
+		lblTrainingDataPredictedSteeringDirection.setLayoutData(gd_lblTrainingDataPredictedSteeringDirection);
+		
+		predictionComposite = new Composite(trainingDataReviewComposite, SWT.NONE);
+		predictionComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
+		predictionComposite.setLayout(new GridLayout(4, false));
+		
+		lblInputsForPrediction = new Label(predictionComposite, SWT.NONE);
+		lblInputsForPrediction.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 4, 1));
+		lblInputsForPrediction.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		lblInputsForPrediction.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
+		lblInputsForPrediction.setText("Inputs For Prediction");
+		
+		lblPredictNoOfHiddenLayers = new Label(predictionComposite, SWT.NONE);
+		lblPredictNoOfHiddenLayers.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 2, 1));
+		lblPredictNoOfHiddenLayers.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		lblPredictNoOfHiddenLayers.setText("No Of Hidden Layers");
+		
+		textPredictNumberOfHiddenLayers = new Text(predictionComposite, SWT.BORDER);
+		textPredictNumberOfHiddenLayers.setBackground(SWTResourceManager.getColor(255, 239, 213));
+		textPredictNumberOfHiddenLayers.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1));
+		
+		lblPredictWeightsForInputLayer = new Label(predictionComposite, SWT.NONE);
+		lblPredictWeightsForInputLayer.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		lblPredictWeightsForInputLayer.setText("Weights for \r\nInput Layer");
+		
+		textPredictWeightsForInputLayer = new Text(predictionComposite, SWT.BORDER);
+		textPredictWeightsForInputLayer.setBackground(SWTResourceManager.getColor(255, 239, 213));
+		textPredictWeightsForInputLayer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		lblPredictWeightsForFirstHiddenLayer = new Label(predictionComposite, SWT.NONE);
+		lblPredictWeightsForFirstHiddenLayer.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		lblPredictWeightsForFirstHiddenLayer.setText("Weights for \r\nFirst Hidden Layer");
+		
+		textPredictWeightsForFirstHiddenLayer = new Text(predictionComposite, SWT.BORDER);
+		textPredictWeightsForFirstHiddenLayer.setBackground(SWTResourceManager.getColor(255, 239, 213));
+		textPredictWeightsForFirstHiddenLayer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		new Label(predictionComposite, SWT.NONE);
+		new Label(predictionComposite, SWT.NONE);
+		new Label(predictionComposite, SWT.NONE);
+		new Label(predictionComposite, SWT.NONE);
+		
+		lblPredictWeightsForSecondHiddenLayer = new Label(predictionComposite, SWT.NONE);
+		lblPredictWeightsForSecondHiddenLayer.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		lblPredictWeightsForSecondHiddenLayer.setText("Weights for \r\nSecond Hidden Layer");
+		
+		textPredictWeightsForSecondHiddenLayer = new Text(predictionComposite, SWT.BORDER);
+		textPredictWeightsForSecondHiddenLayer.setBackground(SWTResourceManager.getColor(255, 239, 213));
+		textPredictWeightsForSecondHiddenLayer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		lblPredictWeightsForThirdHiddenLayer = new Label(predictionComposite, SWT.NONE);
+		lblPredictWeightsForThirdHiddenLayer.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		lblPredictWeightsForThirdHiddenLayer.setText("Weights for \r\nThird Hidden Layer");
+		
+		textPredictWeightsForThirdHiddenLayer = new Text(predictionComposite, SWT.BORDER);
+		textPredictWeightsForThirdHiddenLayer.setBackground(SWTResourceManager.getColor(255, 239, 213));
+		textPredictWeightsForThirdHiddenLayer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		loggingComposite = new Composite(shell, SWT.NONE);
 		loggingComposite.setLayout(new GridLayout(5, false));
