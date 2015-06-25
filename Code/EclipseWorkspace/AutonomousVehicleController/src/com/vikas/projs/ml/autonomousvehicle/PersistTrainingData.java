@@ -181,7 +181,7 @@ public class PersistTrainingData implements Runnable{
 	 * @param data
 	 * @return
 	 */
-	protected int[] byteToInt(byte[] data) {
+	protected static int[] byteToInt(byte[] data) {
 	    int[] ints = new int[data.length];
 	    for (int i = 0; i < data.length; i++) {
 	        ints[i] = (int) data[i] & 0xff;

@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.math3.linear.RealMatrix;
+
 /**
  * Generic Utilities
  * @author Vikas_Vijayakumar
@@ -105,6 +107,24 @@ public class Utilities {
 		
 		trainingFile.delete();
 		resizedFile.renameTo(new File(trainingFileName));
+	}
+	
+	/**
+	 * Applies the sigmoid function on each element of the matrix
+	 * @param RealMatrix
+	 * @return Sigmoid of the provided matrix
+	 */
+	public static RealMatrix sigmoid(RealMatrix z){
+		// g = 1.0 ./ (1.0 + exp(-z));
+		RealMatrix m = z.copy();
+		for (int i = 0; i < m.getRowDimension(); i++) {
+			for (int j = 0; j < m.getColumnDimension(); j++) {
+				double y = m.getEntry(i, j);
+				double g = 1.0 / (1.0 + Math.exp(-y));
+				m.setEntry(i, j, g);
+			}
+		}
+		return m;
 	}
 
 }

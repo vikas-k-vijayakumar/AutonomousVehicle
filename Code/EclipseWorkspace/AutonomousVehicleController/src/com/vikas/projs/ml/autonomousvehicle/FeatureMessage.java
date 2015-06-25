@@ -13,6 +13,7 @@ public class FeatureMessage {
 	private int pixelDepth;
 	private byte[] framePixelData;
 	private String steeringDirection;
+	private int[] framePixelDataInt;
 	
 	public static final String steerRight = "2";
 	public static final String steerLeft = "3";
@@ -48,5 +49,11 @@ public class FeatureMessage {
 	}
 	public void setPixelDepth(int pixelDepth) {
 		this.pixelDepth = pixelDepth;
+	}
+	public int[] getFramePixelDataInt() {
+		return framePixelDataInt;
+	}
+	public void setFramePixelDataInt(int[] framePixelDataInt) {
+		this.framePixelDataInt = framePixelDataInt;
 	}
 }
