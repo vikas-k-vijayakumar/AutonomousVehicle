@@ -818,7 +818,7 @@ public class DriverDisplayAndController {
 			}
 		});
 		btnResizeTrainingFile.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
-		btnResizeTrainingFile.setText("Resize Training Image");
+		btnResizeTrainingFile.setText("Resize Images in TrainingSet");
 		
 		capturedDataDirectoryName = new Text(trainingDataReviewConfigComposite, SWT.BORDER);
 		capturedDataDirectoryName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 4, 1));

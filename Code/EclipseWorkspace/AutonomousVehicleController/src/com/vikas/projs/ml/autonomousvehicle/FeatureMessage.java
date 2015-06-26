@@ -17,8 +17,8 @@ public class FeatureMessage {
 	
 	public static final String steerRight = "2";
 	public static final String steerLeft = "3";
-	public static final String steerforward = "0";
-	public static final String steerReverse = "1";
+	public static final String steerforward = "1";
+	public static final String steerReverse = "4";
 	
 	public int getFrameWidth() {
 		return frameWidth;
