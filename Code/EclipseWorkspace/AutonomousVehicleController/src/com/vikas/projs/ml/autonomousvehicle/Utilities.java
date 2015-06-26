@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 
 /**
@@ -127,4 +128,20 @@ public class Utilities {
 		return m;
 	}
 
+	/**
+	 * Adds the bias node as the first column
+	 * @param RealMatrix
+	 * @return Sigmoid of the provided matrix
+	 */
+	public static RealMatrix addBiasNode(RealMatrix z){
+		RealMatrix m = MatrixUtils.createRealMatrix(z.getRowDimension(), z.getColumnDimension()+1);
+		for (int i = 0; i < z.getRowDimension(); i++) {
+			//Add Bias Unit
+			m.setEntry(i, 0, 1);
+			for (int j = 0; j < z.getColumnDimension(); j++) {
+				m.setEntry(i, j+1, 1);
+			}
+		}
+		return m;
+	}
 }

@@ -95,24 +95,46 @@ public class PredictSteeringDirection implements Runnable{
 				}
 				
 				//Create input layer activations, add the bias unit as well
-				RealMatrix ActivationsOfInputLayer = MatrixUtils.createRealMatrix(1,framePixelData.length+1);
-				ActivationsOfInputLayer.setEntry(0, 0, Double.valueOf(1));
+				RealMatrix activationsOfInputLayer = MatrixUtils.createRealMatrix(1,framePixelData.length+1);
+				activationsOfInputLayer.setEntry(0, 0, Double.valueOf(1));
 				for(int i=0;i<framePixelData.length;i++){
-					ActivationsOfInputLayer.setEntry(0, i+1, Double.valueOf(i));
+					activationsOfInputLayer.setEntry(0, i+1, Double.valueOf(i));
 				}
 				
 				//Start calculating the activations for other layers
-				RealMatrix ActivationsOfFirstHiddenLayer = null;
-				RealMatrix ActivationsOfSecondHiddenLayer = null;
-				RealMatrix ActivationsOfThirdHiddenLayer = null;
-				RealMatrix PredictedOutput = null;
+				RealMatrix activationsOfFirstHiddenLayer = null;
+				RealMatrix activationsOfSecondHiddenLayer = null;
+				RealMatrix activationsOfThirdHiddenLayer = null;
+				RealMatrix predictedOutput = null;
 
 				//Size = Number of nodes in first hidden layer  X  1
-				ActivationsOfFirstHiddenLayer = Utilities.sigmoid(weightMatrixList.get(0).multiply(ActivationsOfInputLayer.transpose()));
-				//Add bias unit to the first hidden layer
+				activationsOfFirstHiddenLayer = Utilities.sigmoid(weightMatrixList.get(0).multiply(activationsOfInputLayer.transpose()));
+
+				//If one hidden layer
 				if(weightMatrixList.size() == 2){
-					PredictedOutput = Utilities.sigmoid(weightMatrixList.get(1).multiply(ActivationsOfFirstHiddenLayer));
+					//Size = Number of output nodes X 1
+					predictedOutput = Utilities.sigmoid(weightMatrixList.get(1).multiply(Utilities.addBiasNode(activationsOfFirstHiddenLayer)));
 				}
+				
+				//If two hidden layers
+				if(weightMatrixList.size() == 3){
+					//Size = Number of nodes in second hidden layer  X  1
+					activationsOfSecondHiddenLayer = Utilities.sigmoid(weightMatrixList.get(1).multiply(Utilities.addBiasNode(activationsOfFirstHiddenLayer)));
+					//Size = Number of output nodes X 1
+					predictedOutput = Utilities.sigmoid(weightMatrixList.get(2).multiply(Utilities.addBiasNode(activationsOfSecondHiddenLayer)));
+				}
+				
+				//If three hidden layers
+				if(weightMatrixList.size() == 4){
+					//Size = Number of nodes in second hidden layer  X  1
+					activationsOfSecondHiddenLayer = Utilities.sigmoid(weightMatrixList.get(1).multiply(Utilities.addBiasNode(activationsOfFirstHiddenLayer)));
+					//Size = Number of nodes in third hidden layer  X  1
+					activationsOfThirdHiddenLayer = Utilities.sigmoid(weightMatrixList.get(2).multiply(Utilities.addBiasNode(activationsOfSecondHiddenLayer)));
+					//Size = Number of output nodes X 1
+					predictedOutput = Utilities.sigmoid(weightMatrixList.get(3).multiply(Utilities.addBiasNode(activationsOfThirdHiddenLayer)));
+				}
+				
+				//Check the predictedOutput for the prediction
 				
 			}catch (InterruptedException e) {
 				logInfoToApplicationDisplay("Info: Predict Steering Direction thread has been interrupted, will not perform predictions anymore");
