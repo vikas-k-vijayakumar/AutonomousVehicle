@@ -161,4 +161,17 @@ public class Utilities {
 		}
 		return m;
 	}
+	
+	/**
+	 * This method cnverts a Byte array into Int array
+	 * @param data
+	 * @return
+	 */
+	public static int[] byteToInt(byte[] data) {
+	    int[] ints = new int[data.length];
+	    for (int i = 0; i < data.length; i++) {
+	        ints[i] = (int) data[i] & 0xff;
+	    }
+	    return ints;
+	} 
 }

@@ -81,7 +81,7 @@ public class PersistTrainingData implements Runnable{
 					int updatedFrameHeight = currentFeatureList.getFrameHeight() - (pixelRowsToStripFromTop + pixelRowsToStripFromBottom);
 					
 					//Write every pixel value after converting the byte array into an integer array
-					int[] intPixelData = byteToInt(currentFeatureList.getFramePixelData());
+					int[] intPixelData = Utilities.byteToInt(currentFeatureList.getFramePixelData());
 					for(int k=0;k<intPixelData.length;k++){
 						if(skipPixels){
 							if((k < noOfPixelsToSkipAtStart) || (k >= pixelNumberToSkipFromAtEnd)){
@@ -175,19 +175,6 @@ public class PersistTrainingData implements Runnable{
 			}
 		});
 	}
-	
-	/**
-	 * This method cnverts a Byte array into Int array
-	 * @param data
-	 * @return
-	 */
-	protected static int[] byteToInt(byte[] data) {
-	    int[] ints = new int[data.length];
-	    for (int i = 0; i < data.length; i++) {
-	        ints[i] = (int) data[i] & 0xff;
-	    }
-	    return ints;
-	} 
 	
 	private void updateCurrentTrainingParams(){
 		display.syncExec(new Runnable(){
