@@ -12,15 +12,17 @@ import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.eclipse.swt.widgets.Display;
 
+/**
+ * Performs predictions  using Neural Networks. Can handle upto three hidden layers
+ * Though testing has only been performed for neural networks with one hidden layer
+ */
 public class PredictUsingNN implements Runnable{
 
-	private ArrayBlockingQueue<FeatureMessage> predictQueue;
 	private Thread predictSteeringDirectionThread;
 	private Display display;
 	private ArrayList<RealMatrix> weightMatrixList;
 	
-	public PredictUsingNN(ArrayBlockingQueue<FeatureMessage> predictQueue, Display display, String[] weightFileNames) throws FileNotFoundException, IOException{
-		this.predictQueue = predictQueue;
+	public PredictUsingNN(Display display, String[] weightFileNames) throws FileNotFoundException, IOException{
 		this.display = display;
 		weightMatrixList =  new ArrayList<RealMatrix>();
 		
@@ -39,7 +41,15 @@ public class PredictUsingNN implements Runnable{
 				BufferedReader br1 = new BufferedReader(new FileReader(weightFileNames[i]));
 				RealMatrix realMatrix = null;
 				while((line = br1.readLine()) != null ){
-					String[] weights = line.split(" ");
+					String[] weightsTemp = line.split(" ");
+					
+					//The weights i.e. theta file created from octave starts with a space which causes the first field to be 
+					//an empty string. The below piece of code is used to filter out the first field
+					String[] weights = new String[weightsTemp.length - 1];
+					for(int k=1;k<weightsTemp.length;k++){
+						weights[k-1] = weightsTemp[k];
+					}
+					
 					int noOfWeights = weights.length;
 					//Create RealMatrix. 
 					//Set Number of rows to number of lines in file. 
@@ -71,7 +81,7 @@ public class PredictUsingNN implements Runnable{
 		}
 	}
 	
-	private void cancel(){
+	public void cancel(){
 		logInfoToApplicationDisplay("Info: Current Predict Steering Direction thread will be interuppted");
 		predictSteeringDirectionThread.interrupt();
 	}
@@ -81,8 +91,8 @@ public class PredictUsingNN implements Runnable{
 	 * @param FeatureMessage
 	 * @return FeatureMessage
 	 */
-	protected FeatureMessage predictSteeringDirection(FeatureMessage currentFeatureList){
-
+	public FeatureMessage predictSteeringDirection(FeatureMessage currentFeatureList){
+		FeatureMessage returnFeatureMessage = new FeatureMessage();
 		try {						
 			//The Auto mode will send the images in the form of byte array whereas
 			//training review mode will send the images in the form of int array
@@ -99,6 +109,7 @@ public class PredictUsingNN implements Runnable{
 			for(int i=0;i<framePixelData.length;i++){
 				activationsOfInputLayer.setEntry(0, i+1, Double.valueOf(i));
 			}
+			logInfoToApplicationDisplay("Info: Size of the Input matrix is: "+activationsOfInputLayer.getRowDimension()+" X"+activationsOfInputLayer.getColumnDimension());
 			
 			//Start calculating the activations for other layers
 			RealMatrix activationsOfFirstHiddenLayer = null;
@@ -108,60 +119,85 @@ public class PredictUsingNN implements Runnable{
 
 			//Size = Number of nodes in first hidden layer  X  1
 			activationsOfFirstHiddenLayer = Utilities.sigmoid(weightMatrixList.get(0).multiply(activationsOfInputLayer.transpose()));
+			logInfoToApplicationDisplay("Info: Size of the First Hidden Layer activation matrix is: "+activationsOfFirstHiddenLayer.getRowDimension()+" X"+activationsOfFirstHiddenLayer.getColumnDimension());
 
 			//If one hidden layer
 			if(weightMatrixList.size() == 2){
 				//Size = Number of output nodes X 1
-				predictedOutput = Utilities.sigmoid(weightMatrixList.get(1).multiply(Utilities.addBiasNode(activationsOfFirstHiddenLayer)));
+				predictedOutput = Utilities.sigmoid(weightMatrixList.get(1).multiply(Utilities.addBiasNodeInRow(activationsOfFirstHiddenLayer)));
+				logInfoToApplicationDisplay("Info: Size of the Predicted Output Layer matrix is: "+predictedOutput.getRowDimension()+" X"+predictedOutput.getColumnDimension());
 			}
 			
 			//If two hidden layers
 			if(weightMatrixList.size() == 3){
 				//Size = Number of nodes in second hidden layer  X  1
-				activationsOfSecondHiddenLayer = Utilities.sigmoid(weightMatrixList.get(1).multiply(Utilities.addBiasNode(activationsOfFirstHiddenLayer)));
+				activationsOfSecondHiddenLayer = Utilities.sigmoid(weightMatrixList.get(1).multiply(Utilities.addBiasNodeInRow(activationsOfFirstHiddenLayer)));
 				//Size = Number of output nodes X 1
-				predictedOutput = Utilities.sigmoid(weightMatrixList.get(2).multiply(Utilities.addBiasNode(activationsOfSecondHiddenLayer)));
+				predictedOutput = Utilities.sigmoid(weightMatrixList.get(2).multiply(Utilities.addBiasNodeInRow(activationsOfSecondHiddenLayer)));
+				logInfoToApplicationDisplay("Info: Size of the Second Hidden Layer activation matrix is: "+activationsOfSecondHiddenLayer.getRowDimension()+" X"+activationsOfSecondHiddenLayer.getColumnDimension());
+				logInfoToApplicationDisplay("Info: Size of the Predicted Output Layer matrix is: "+predictedOutput.getRowDimension()+" X"+predictedOutput.getColumnDimension());
 			}
 			
 			//If three hidden layers
 			if(weightMatrixList.size() == 4){
 				//Size = Number of nodes in second hidden layer  X  1
-				activationsOfSecondHiddenLayer = Utilities.sigmoid(weightMatrixList.get(1).multiply(Utilities.addBiasNode(activationsOfFirstHiddenLayer)));
+				activationsOfSecondHiddenLayer = Utilities.sigmoid(weightMatrixList.get(1).multiply(Utilities.addBiasNodeInRow(activationsOfFirstHiddenLayer)));
 				//Size = Number of nodes in third hidden layer  X  1
-				activationsOfThirdHiddenLayer = Utilities.sigmoid(weightMatrixList.get(2).multiply(Utilities.addBiasNode(activationsOfSecondHiddenLayer)));
+				activationsOfThirdHiddenLayer = Utilities.sigmoid(weightMatrixList.get(2).multiply(Utilities.addBiasNodeInRow(activationsOfSecondHiddenLayer)));
 				//Size = Number of output nodes X 1
-				predictedOutput = Utilities.sigmoid(weightMatrixList.get(3).multiply(Utilities.addBiasNode(activationsOfThirdHiddenLayer)));
+				predictedOutput = Utilities.sigmoid(weightMatrixList.get(3).multiply(Utilities.addBiasNodeInRow(activationsOfThirdHiddenLayer)));
+				logInfoToApplicationDisplay("Info: Size of the Second Hidden Layer activation matrix is: "+activationsOfSecondHiddenLayer.getRowDimension()+" X"+activationsOfSecondHiddenLayer.getColumnDimension());
+				logInfoToApplicationDisplay("Info: Size of the Third Hidden Layer activation matrix is: "+activationsOfThirdHiddenLayer.getRowDimension()+" X"+activationsOfThirdHiddenLayer.getColumnDimension());
+				logInfoToApplicationDisplay("Info: Size of the Predicted Output Layer matrix is: "+predictedOutput.getRowDimension()+" X"+predictedOutput.getColumnDimension());
 			}
 			
 			//Check the predictedOutput for the prediction and set it to the FeatureMessage
 			//Assuming that first output node is for Forward, second output node is for right and third for left
 			if((predictedOutput.getEntry(0, 0) > predictedOutput.getEntry(1, 0)) && (predictedOutput.getEntry(0, 0) > predictedOutput.getEntry(2, 0))){
 				logInfoToApplicationDisplay("Info: Steering Prediction is Steer Forward");
-				currentFeatureList.setSteeringDirection(FeatureMessage.steerforward);
+				returnFeatureMessage.setSteeringDirection(FeatureMessage.steerforward);
 			}else if((predictedOutput.getEntry(1, 0) > predictedOutput.getEntry(0, 0)) && (predictedOutput.getEntry(1, 0) > predictedOutput.getEntry(2, 0))){
 				logInfoToApplicationDisplay("Info: Steering Prediction is Steer Right");
-				currentFeatureList.setSteeringDirection(FeatureMessage.steerRight);
+				returnFeatureMessage.setSteeringDirection(FeatureMessage.steerRight);
 			}else{
 				logInfoToApplicationDisplay("Info: Steering Prediction is Steer Left");
-				currentFeatureList.setSteeringDirection(FeatureMessage.steerLeft);
+				returnFeatureMessage.setSteeringDirection(FeatureMessage.steerLeft);
 			}
 			
 		}catch (DimensionMismatchException e){
-			logInfoToApplicationDisplay("Error: Predict Steering Direction has failed");
+			//logErrorToApplicationDisplay(e, "Error: Predict Steering Direction has failed");
+			e.printStackTrace();
 			this.cancel();
 		}
 		
-		return currentFeatureList;
+		return returnFeatureMessage;
 	}
 	
 	/**
 	 * Proxy for the logInfoToApplicationDisplay function defined in DriverDisplayAndController
 	 * @param logEntry
 	 */
-	private void logInfoToApplicationDisplay(final String logEntry){
+	/*private void logInfoToApplicationDisplay(final String logEntry){
 		display.syncExec(new Runnable(){
 			public void run(){
 				DriverDisplayAndController.logInfoToApplicationDisplay(logEntry);
+			}
+		});
+	}*/
+
+	private void logInfoToApplicationDisplay(final String logEntry){
+		//System.out.println(logEntry);
+	}
+
+	
+	/**
+	 * Proxy for the logErrorToApplicationDisplay function defined in DriverDisplayAndController
+	 * @param e
+	 */
+	private void logErrorToApplicationDisplay(final Exception e, final String informationMessage){
+		display.syncExec(new Runnable(){
+			public void run(){
+				DriverDisplayAndController.logErrorToApplicationDisplay(e, informationMessage);
 			}
 		});
 	}

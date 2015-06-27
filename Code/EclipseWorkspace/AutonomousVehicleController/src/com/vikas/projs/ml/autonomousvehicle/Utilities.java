@@ -131,15 +131,32 @@ public class Utilities {
 	/**
 	 * Adds the bias node as the first column
 	 * @param RealMatrix
-	 * @return Sigmoid of the provided matrix
+	 * @return Matrix with added bias column
 	 */
-	public static RealMatrix addBiasNode(RealMatrix z){
+	public static RealMatrix addBiasNodeInColumn(RealMatrix z){
 		RealMatrix m = MatrixUtils.createRealMatrix(z.getRowDimension(), z.getColumnDimension()+1);
 		for (int i = 0; i < z.getRowDimension(); i++) {
 			//Add Bias Unit
 			m.setEntry(i, 0, 1);
 			for (int j = 0; j < z.getColumnDimension(); j++) {
-				m.setEntry(i, j+1, 1);
+				m.setEntry(i, j+1, z.getEntry(i, j));
+			}
+		}
+		return m;
+	}
+	
+	/**
+	 * Adds the bias node as the first row
+	 * @param RealMatrix
+	 * @return Matrix with added bias row
+	 */
+	public static RealMatrix addBiasNodeInRow(RealMatrix z){
+		RealMatrix m = MatrixUtils.createRealMatrix(z.getRowDimension()+1, z.getColumnDimension());
+		for (int i = 0; i < z.getColumnDimension(); i++) {
+			//Add Bias Unit
+			m.setEntry(0, i, 1);
+			for (int j = 0; j < z.getRowDimension(); j++) {
+				m.setEntry(j+1, i, z.getEntry(j, i));
 			}
 		}
 		return m;

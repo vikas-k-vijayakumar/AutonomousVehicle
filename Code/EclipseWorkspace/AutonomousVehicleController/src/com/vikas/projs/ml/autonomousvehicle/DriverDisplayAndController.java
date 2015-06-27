@@ -865,7 +865,7 @@ public class DriverDisplayAndController {
 		lblTrainingDataReview.setBackground(SWTResourceManager.getColor(176, 224, 230));
 		
 		lblCapturedTrainingsetNavigation = new Label(trainingDataReviewNavgationDetails, SWT.NONE);
-		GridData gd_lblCapturedTrainingsetNavigation = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
+		GridData gd_lblCapturedTrainingsetNavigation = new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1);
 		gd_lblCapturedTrainingsetNavigation.widthHint = 64;
 		lblCapturedTrainingsetNavigation.setLayoutData(gd_lblCapturedTrainingsetNavigation);
 		lblCapturedTrainingsetNavigation.setText("Actual\r\nDirection");
@@ -879,7 +879,7 @@ public class DriverDisplayAndController {
 		lblPredictedTrainingsetNavigation.setText("Predicted\r\nDirection");
 		
 		lblTrainingDataSteeringDirection = new Label(trainingDataReviewNavgationDetails, SWT.NONE);
-		GridData gd_lblTrainingDataSteeringDirection = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		GridData gd_lblTrainingDataSteeringDirection = new GridData(SWT.CENTER, SWT.FILL, true, true, 1, 1);
 		gd_lblTrainingDataSteeringDirection.widthHint = 133;
 		lblTrainingDataSteeringDirection.setLayoutData(gd_lblTrainingDataSteeringDirection);
 		lblTrainingDataSteeringDirection.setAlignment(SWT.CENTER);
