@@ -70,8 +70,7 @@ public class PredictUsingNN implements Runnable{
 				}
 				weightMatrixList.add(realMatrix);
 				br1.close();
-				logInfoToApplicationDisplay("Info: Successfully read weights from the following file - "+weightFileNames[i]);
-				logInfoToApplicationDisplay("Info: into a matrix of size "+realMatrix.getRowDimension()+" X "+realMatrix.getColumnDimension());
+				logInfoToApplicationDisplay("Info: Successfully read weights from the following file - "+weightFileNames[i]+" into a matrix of size "+realMatrix.getRowDimension()+" X "+realMatrix.getColumnDimension());
 				
 			}
 		}
@@ -84,14 +83,24 @@ public class PredictUsingNN implements Runnable{
 	
 	@Override
 	public void run() {
+		updatePredictionStatus("started");
 		//Until interrupted, do nothing
 		while(!predictSteeringDirectionThread.isInterrupted()){
 			//Do nothing
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				logInfoToApplicationDisplay("Info: Current Prediction thread has been interuppted");
+			}
 		}
 	}
 	
 	public void cancel(){
-		logInfoToApplicationDisplay("Info: Current Predict Steering Direction thread will be interuppted");
+		logInfoToApplicationDisplay("Info: Current Prediction thread will be interuppted");
+		//Remove the currently displayer prediction image
+		removePredictedTrainingDataSteeringDirection();
+		//Reset the background
+		updateTrainingDataReviewLabelBgd("BLUE");
 		predictSteeringDirectionThread.interrupt();
 	}
 	
@@ -208,4 +217,31 @@ public class PredictUsingNN implements Runnable{
 		});
 	}
 
+	/**
+	 * Proxy for the updatePredictionStatus function defined in DriverDisplayAndController
+	 * @param currentStatus
+	 */
+	private void updatePredictionStatus(final String currentStatus){
+		display.syncExec(new Runnable(){
+			public void run(){
+				DriverDisplayAndController.updatePredictionStatus(currentStatus);
+			}
+		});
+	}
+	
+	private void removePredictedTrainingDataSteeringDirection(){
+		display.syncExec(new Runnable(){
+			public void run(){
+				DriverDisplayAndController.displayPredictedTrainingDataSteeringDirection("9", true);
+			}
+		});
+	}
+	
+	private void updateTrainingDataReviewLabelBgd(final String status){
+		display.syncExec(new Runnable(){
+			public void run(){
+				DriverDisplayAndController.updateTrainingDataReviewLabelBgd(status);
+			}
+		});
+	}
 }

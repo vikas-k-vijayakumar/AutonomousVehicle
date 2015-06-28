@@ -27,6 +27,8 @@ public class DisplayTrainingData implements Runnable{
 	private static int displayImageNumber=1;
 	private BufferedReader br;
 	private static ArrayBlockingQueue<String> trainingDataQueue = new ArrayBlockingQueue<String>(5);
+	private Boolean predictionInProgress;
+	private PredictUsingNN predictUsingNN;
 	
 	public DisplayTrainingData(Display display, String trainingDataFileName, int frameWidth, int frameHeight, int frameDepth){
 		this.trainingDataFileName = trainingDataFileName;
@@ -43,7 +45,7 @@ public class DisplayTrainingData implements Runnable{
 
 	@Override
 	public void run() {
-		
+		updateTrainingDataReviewLabelBgd("BLUE");
 		try {					
 			while(!displayTrainingDataThread.isInterrupted()){				
 				//Wait for button press
@@ -108,13 +110,41 @@ public class DisplayTrainingData implements Runnable{
 						String[] stringPixeldata = line.split(",");
 						logInfoToApplicationDisplay("Info: Number of pixels in frame = "+stringPixeldata.length);
 						byte[] bytePixelData = new byte[frameWidth * frameHeight];
+						int[] integerPixelData = new int[frameWidth * frameHeight];
 						for(int i=0;i<frameWidth * frameHeight;i++){
 							int intPixelData = Integer.valueOf(stringPixeldata[i]);
 							bytePixelData[i] = (byte) intPixelData;
+							integerPixelData[i] = intPixelData;
+						}
+						
+						//Display the image on canvas
+						displayFramesOnCanvas(frameWidth, frameHeight, frameDepth, bytePixelData);
+						//Display the capture steering direction
+						displayTrainingDataSteeringDirection(stringPixeldata[frameWidth * frameHeight]);
+						
+						//Check if predictions are required
+						if((predictionInProgress) && (predictUsingNN != null)){
+							//Predict the steering direction based on the neural network configuration details provided
+							FeatureMessage featureMessage = new FeatureMessage();
+							featureMessage.setFramePixelDataInt(integerPixelData);
+							FeatureMessage predictedFeatureMessage = predictUsingNN.predictSteeringDirection(featureMessage);
+							if(predictedFeatureMessage != null){
+								//Display the predicted steering direction
+								displayPredictedTrainingDataSteeringDirection(predictedFeatureMessage.getSteeringDirection());
+								
+								//Change the background color of canvas
+								//Green if the captured steering direction matches with the predicted steering direction
+								//Red if the captured steering direction doesn't match with the predicted steering direction
+								if(Integer.valueOf(predictedFeatureMessage.getSteeringDirection()) == Integer.valueOf(stringPixeldata[frameWidth * frameHeight])){
+									updateTrainingDataReviewLabelBgd("GREEN");
+								}else{
+									updateTrainingDataReviewLabelBgd("RED");
+								}
+							}
+							
 						}
 												
-						displayFramesOnCanvas(frameWidth, frameHeight, frameDepth, bytePixelData);
-						displayTrainingDataSteeringDirection(stringPixeldata[frameWidth * frameHeight]);
+						//Update the button text
 						updateTrainingDataFrameButtonText(currentImageNumber-1,currentImageNumber,currentImageNumber+1);
 
 					}else{
@@ -140,12 +170,14 @@ public class DisplayTrainingData implements Runnable{
 	public void cancel(){
 		try {
 			if(br != null){
+				updateTrainingDataReviewLabelBgd("BLUE");
 				br.close();
 				logInfoToApplicationDisplay("Info: Current Display TrainingData thread will be interuppted");
 				displayTrainingDataThread.interrupt();
 			}			
 		} catch (IOException e) {
 			logErrorToApplicationDisplay(e, "ERROR: IO Exception when closing the stream from file "+trainingDataFileName);
+			updateTrainingDataReviewLabelBgd("BLUE");
 		}
 	}
 	
@@ -207,7 +239,17 @@ public class DisplayTrainingData implements Runnable{
 		});
 	}
 	
-	protected synchronized void displayNextImage(){
+	private void displayPredictedTrainingDataSteeringDirection(final String steeringDirection){
+		display.syncExec(new Runnable(){
+			public void run(){
+				DriverDisplayAndController.displayPredictedTrainingDataSteeringDirection(steeringDirection, false);
+			}
+		});
+	}
+	
+	protected synchronized void displayNextImage(PredictUsingNN predictUsingNN, Boolean predictionInProgress){
+		this.predictUsingNN = predictUsingNN;
+		this.predictionInProgress = predictionInProgress;
 		displayImageNumber++;
 		//Notify the thread to wake up
 		try {
@@ -217,7 +259,9 @@ public class DisplayTrainingData implements Runnable{
 		}
 	}
 	
-	protected synchronized void displayPreviousImage(){
+	protected synchronized void displayPreviousImage(PredictUsingNN predictUsingNN, Boolean predictionInProgress){
+		this.predictUsingNN = predictUsingNN;
+		this.predictionInProgress = predictionInProgress;
 		if(displayImageNumber == 1){
 			displayImageNumber = 1;
 		}else{
@@ -244,6 +288,14 @@ public class DisplayTrainingData implements Runnable{
 		display.syncExec(new Runnable(){
 			public void run(){
 				DriverDisplayAndController.updateTrainingDataFrameButtonText(previous, current, next);
+			}
+		});
+	}
+	
+	private void updateTrainingDataReviewLabelBgd(final String status){
+		display.syncExec(new Runnable(){
+			public void run(){
+				DriverDisplayAndController.updateTrainingDataReviewLabelBgd(status);
 			}
 		});
 	}

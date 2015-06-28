@@ -1,6 +1,7 @@
 package com.vikas.projs.ml.autonomousvehicle;
 
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -15,6 +16,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
@@ -136,7 +138,7 @@ public class DriverDisplayAndController {
 	private Text pixelRowsToStripFromTopTraining;
 	private Text pixelRowsToStripFromBottomTraining;
 	private Label lblPredictedTrainingsetNavigation;
-	private Label lblTrainingDataPredictedSteeringDirection;
+	private static Label lblTrainingDataPredictedSteeringDirection;
 	private Label lblPredictNoOfHiddenLayers;
 	private Label lblPredictWeightsForInputLayer;
 	private Label lblPredictWeightsForFirstHiddenLayer;
@@ -149,7 +151,9 @@ public class DriverDisplayAndController {
 	private Text textPredictWeightsForThirdHiddenLayer;
 	private Text textPredictNumberOfHiddenLayers;
 	private Composite predictionComposite;
-	private Button btnAssociatePredictionWeights;
+	private static Button btnAssociatePredictionWeights;
+	private static Boolean predictionInProgress = false;
+	private PredictUsingNN predictUsingNN;
 
 	/**
 	 * Launch the application.
@@ -725,14 +729,14 @@ public class DriverDisplayAndController {
 		btnPreviousTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
 		GridData gd_btnPreviousTrainingDataImage = new GridData(SWT.RIGHT, SWT.CENTER, true, true, 2, 1);
 		gd_btnPreviousTrainingDataImage.widthHint = 192;
-		gd_btnPreviousTrainingDataImage.heightHint = 30;
+		gd_btnPreviousTrainingDataImage.heightHint = 24;
 		btnPreviousTrainingDataImage.setLayoutData(gd_btnPreviousTrainingDataImage);
 		btnPreviousTrainingDataImage.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//Display the PreviousImage in the Training Data File
 				if(displayTrainingData != null){
-					displayTrainingData.displayPreviousImage();
+					displayTrainingData.displayPreviousImage(predictUsingNN, predictionInProgress);					
 				}
 			}
 		});
@@ -748,7 +752,7 @@ public class DriverDisplayAndController {
 			public void widgetSelected(SelectionEvent e) {
 				//Display the NextImage in the Training Data File
 				if(displayTrainingData != null){
-					displayTrainingData.displayNextImage();
+					displayTrainingData.displayNextImage(predictUsingNN, predictionInProgress);
 				}
 			}
 		});
@@ -973,12 +977,59 @@ public class DriverDisplayAndController {
 		
 		textPredictNumberOfHiddenLayers = new Text(predictionComposite, SWT.BORDER);
 		textPredictNumberOfHiddenLayers.setSize(78, 26);
-		textPredictNumberOfHiddenLayers.setBackground(SWTResourceManager.getColor(255, 239, 213));
+		textPredictNumberOfHiddenLayers.setBackground(SWTResourceManager.getColor(255, 255, 204));
+		textPredictNumberOfHiddenLayers.setText("1");
 		
 		btnAssociatePredictionWeights = new Button(predictionComposite, SWT.NONE);
+		btnAssociatePredictionWeights.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(predictionInProgress){
+					logInfoToApplicationDisplay("Info: Removing Prediction thread, will not predict anymore");
+					//Disconnect from prediction
+					if (predictUsingNN != null){
+						predictUsingNN.cancel();
+					}
+					updatePredictionStatus("stopped");
+
+				}else{
+					logInfoToApplicationDisplay("Info: Will try to associate the weights for prediction");
+					//Check if required information has been supplied
+					if(!Utilities.validateInteger(String.valueOf((Integer.valueOf(textPredictNumberOfHiddenLayers.getText()))), 1, 3)){
+						displayErrorMessageOnscreen("Number of hidden layer must be either 1, 2 or 3");
+					}else if((Integer.valueOf(textPredictNumberOfHiddenLayers.getText()) == 1) && ((textPredictWeightsForFirstHiddenLayer.getText().isEmpty()) || (textPredictWeightsForInputLayer.getText().isEmpty()))){
+						displayErrorMessageOnscreen("Provide weights for Input layer and first hidden layer");
+					}else if((Integer.valueOf(textPredictNumberOfHiddenLayers.getText()) == 2) && ((textPredictWeightsForFirstHiddenLayer.getText().isEmpty()) || (textPredictWeightsForInputLayer.getText().isEmpty()) || (textPredictWeightsForSecondHiddenLayer.getText().isEmpty()))){
+						displayErrorMessageOnscreen("Provide weights for Input layer, first and second hidden layers");
+					}else if((Integer.valueOf(textPredictNumberOfHiddenLayers.getText()) == 3) && ((textPredictWeightsForFirstHiddenLayer.getText().isEmpty()) || (textPredictWeightsForInputLayer.getText().isEmpty()) || (textPredictWeightsForSecondHiddenLayer.getText().isEmpty()) || (textPredictWeightsForThirdHiddenLayer.getText().isEmpty()))){
+						displayErrorMessageOnscreen("Provide weights for Input layer, first, second and third hidden layers");
+					}else{
+						//Create a thread to start the prediction 
+						try{
+							if(Integer.valueOf(textPredictNumberOfHiddenLayers.getText()) == 1){
+								String[] weightFileNames = {textPredictWeightsForInputLayer.getText(), textPredictWeightsForFirstHiddenLayer.getText()};
+								predictUsingNN = new PredictUsingNN(display, weightFileNames);
+							}else if(Integer.valueOf(textPredictNumberOfHiddenLayers.getText()) == 2){
+								String[] weightFileNames = {textPredictWeightsForInputLayer.getText(), textPredictWeightsForFirstHiddenLayer.getText(), textPredictWeightsForSecondHiddenLayer.getText()};
+								predictUsingNN = new PredictUsingNN(display, weightFileNames);
+							}else{
+								String[] weightFileNames = {textPredictWeightsForInputLayer.getText(), textPredictWeightsForFirstHiddenLayer.getText(), textPredictWeightsForSecondHiddenLayer.getText(), textPredictWeightsForThirdHiddenLayer.getText()};
+								predictUsingNN = new PredictUsingNN(display, weightFileNames);
+							}
+						}catch(FileNotFoundException e1){
+							logErrorToApplicationDisplay(e1,"ERROR: Unable to find weights file");
+						}catch(IOException e1){
+							logErrorToApplicationDisplay(e1,"ERROR: When trying to read the file");
+						}
+						
+					}
+				}
+				
+			}
+		});
 		btnAssociatePredictionWeights.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		btnAssociatePredictionWeights.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
-		btnAssociatePredictionWeights.setText("Associate Prediction Weights");
+		btnAssociatePredictionWeights.setText("Start Prediction");
 		
 		lblPredictWeightsForInputLayer = new Label(predictionComposite, SWT.NONE);
 		lblPredictWeightsForInputLayer.setSize(87, 40);
@@ -990,7 +1041,7 @@ public class DriverDisplayAndController {
 		gd_textPredictWeightsForInputLayer.widthHint = 173;
 		textPredictWeightsForInputLayer.setLayoutData(gd_textPredictWeightsForInputLayer);
 		textPredictWeightsForInputLayer.setSize(180, 26);
-		textPredictWeightsForInputLayer.setBackground(SWTResourceManager.getColor(255, 239, 213));
+		textPredictWeightsForInputLayer.setBackground(SWTResourceManager.getColor(255, 255, 204));
 		
 		lblPredictWeightsForFirstHiddenLayer = new Label(predictionComposite, SWT.NONE);
 		lblPredictWeightsForFirstHiddenLayer.setSize(127, 40);
@@ -1002,7 +1053,7 @@ public class DriverDisplayAndController {
 		gd_textPredictWeightsForFirstHiddenLayer.widthHint = 172;
 		textPredictWeightsForFirstHiddenLayer.setLayoutData(gd_textPredictWeightsForFirstHiddenLayer);
 		textPredictWeightsForFirstHiddenLayer.setSize(180, 26);
-		textPredictWeightsForFirstHiddenLayer.setBackground(SWTResourceManager.getColor(255, 239, 213));
+		textPredictWeightsForFirstHiddenLayer.setBackground(SWTResourceManager.getColor(255, 255, 204));
 		
 		lblPredictWeightsForSecondHiddenLayer = new Label(predictionComposite, SWT.NONE);
 		lblPredictWeightsForSecondHiddenLayer.setSize(146, 40);
@@ -1012,7 +1063,7 @@ public class DriverDisplayAndController {
 		textPredictWeightsForSecondHiddenLayer = new Text(predictionComposite, SWT.BORDER);
 		textPredictWeightsForSecondHiddenLayer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		textPredictWeightsForSecondHiddenLayer.setSize(255, 26);
-		textPredictWeightsForSecondHiddenLayer.setBackground(SWTResourceManager.getColor(255, 239, 213));
+		textPredictWeightsForSecondHiddenLayer.setBackground(SWTResourceManager.getColor(255, 255, 204));
 		
 		lblPredictWeightsForThirdHiddenLayer = new Label(predictionComposite, SWT.NONE);
 		lblPredictWeightsForThirdHiddenLayer.setSize(133, 40);
@@ -1022,7 +1073,7 @@ public class DriverDisplayAndController {
 		textPredictWeightsForThirdHiddenLayer = new Text(predictionComposite, SWT.BORDER);
 		textPredictWeightsForThirdHiddenLayer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		textPredictWeightsForThirdHiddenLayer.setSize(654, 26);
-		textPredictWeightsForThirdHiddenLayer.setBackground(SWTResourceManager.getColor(255, 239, 213));
+		textPredictWeightsForThirdHiddenLayer.setBackground(SWTResourceManager.getColor(255, 255, 204));
 
 	}
 	
@@ -1233,6 +1284,30 @@ public class DriverDisplayAndController {
 	}
 	
 	/**
+	 * When reviewing the Training data, used to display the predicted Steering Direction
+	 * @param steeringDirection
+	 */
+	protected static synchronized void displayPredictedTrainingDataSteeringDirection(String steeringDirection, Boolean resetImage){
+		if(resetImage){
+			lblTrainingDataPredictedSteeringDirection.setImage(null);
+		}else{
+			logInfoToApplicationDisplay("Info: Prediced SteeringDirection is: "+steeringDirection);
+			if(Integer.valueOf(steeringDirection) == Integer.valueOf(FeatureMessage.steerforward)){
+				lblTrainingDataPredictedSteeringDirection.setImage(SWTResourceManager.getImage(DriverDisplayAndController.class, "/com/vikas/projs/ml/autonomousvehicle/images/Forward.jpg"));
+			}else if(Integer.valueOf(steeringDirection) == Integer.valueOf(FeatureMessage.steerReverse)){
+				lblTrainingDataPredictedSteeringDirection.setImage(SWTResourceManager.getImage(DriverDisplayAndController.class, "/com/vikas/projs/ml/autonomousvehicle/images/Reverse.jpg"));
+			}else if(Integer.valueOf(steeringDirection) == Integer.valueOf(FeatureMessage.steerLeft)){
+				lblTrainingDataPredictedSteeringDirection.setImage(SWTResourceManager.getImage(DriverDisplayAndController.class, "/com/vikas/projs/ml/autonomousvehicle/images/Left.jpg"));
+			}else if(Integer.valueOf(steeringDirection) == Integer.valueOf(FeatureMessage.steerRight)){
+				lblTrainingDataPredictedSteeringDirection.setImage(SWTResourceManager.getImage(DriverDisplayAndController.class, "/com/vikas/projs/ml/autonomousvehicle/images/Right.jpg"));
+			}else{
+				logWarningToApplicationDisplay("Warning: Unable to understand the predicted Steering Direction: "+steeringDirection);
+			}
+		}
+
+	}
+	
+	/**
 	 * Used to display message on the screen to the user in a message box / message dialog
 	 * @param message
 	 */
@@ -1260,4 +1335,34 @@ public class DriverDisplayAndController {
 		btnDeleteTrainingDataImage.setText("Delete Training Set "+"("+current+")");
 		btnNextTrainingDataImage.setText("Next TrainingSet "+"("+next+")");
 	}
+	
+	
+	/**
+	 * Update the text of Prediction button
+	 * @param currentStatus
+	 */
+	protected static synchronized void updatePredictionStatus(String currentStatus){
+		if(currentStatus.equalsIgnoreCase("started")){
+			predictionInProgress = true;
+			btnAssociatePredictionWeights.setText("Stop Prediction");	
+		}else{
+			btnAssociatePredictionWeights.setText("Start Prediction");
+			predictionInProgress = false;
+		}
+	}
+
+	/**
+	 * Update the background of the Training Data Review label to reflect the prediction status
+	 * @param status
+	 */
+	protected static synchronized void updateTrainingDataReviewLabelBgd(String status){
+		if(status.equalsIgnoreCase("GREEN")){
+			lblTrainingDataReview.setBackground(new Color(display, 173, 255, 47));
+		}else if(status.equalsIgnoreCase("RED")){
+			lblTrainingDataReview.setBackground(new Color(display, 255, 140, 0));
+		}else{
+			lblTrainingDataReview.setBackground(new Color(display, 176, 224, 230));
+		}
+	}
+	
 }
