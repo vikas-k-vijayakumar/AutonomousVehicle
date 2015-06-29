@@ -15,14 +15,14 @@ clc
 
 %% Setup the Neural Network Layer sizes (Excluding Bias Unit)
 input_layer_size  = 11264;  % 176x104 Pixel Width x Pixel Height of the Training Set
-hidden_layer_size = 50;   % 50 hidden units
+hidden_layer_size = 20;   % 50 hidden units
 num_labels = 3;          % 3 possible outputs. 0 for Forward, 2 for Right and 3 for Left. 1 for Reverse is currently ignored
 
 %  Neural Network Training Optimization Parameters
 %  Maximum Iterations for the Neural Network training
-nnMaxIterations = 30;
+nnMaxIterations = 300;
 %  Cost and Gradient Regularization
-lambda = 0.01;
+lambda = 0.08;
 
 %% =========== Part 1: Loading Data =============
 
