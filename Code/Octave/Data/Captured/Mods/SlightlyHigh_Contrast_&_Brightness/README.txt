@@ -1,1 +1,0 @@
-This originally captured data has been manually modified to slightly increase the brightness and contrast to '' and '' using the software 'GIMP 2'

@@ -759,7 +759,7 @@ public class DriverDisplayAndController {
 		
 		btnPreviousTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
 		GridData gd_btnPreviousTrainingDataImage = new GridData(SWT.RIGHT, SWT.CENTER, true, true, 2, 1);
-		gd_btnPreviousTrainingDataImage.widthHint = 159;
+		gd_btnPreviousTrainingDataImage.widthHint = 184;
 		gd_btnPreviousTrainingDataImage.heightHint = 26;
 		btnPreviousTrainingDataImage.setLayoutData(gd_btnPreviousTrainingDataImage);
 		btnPreviousTrainingDataImage.addSelectionListener(new SelectionAdapter() {
@@ -777,7 +777,7 @@ public class DriverDisplayAndController {
 		btnNextTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
 		GridData gd_btnNextTrainingDataImage = new GridData(SWT.LEFT, SWT.CENTER, true, true, 2, 1);
 		gd_btnNextTrainingDataImage.heightHint = 27;
-		gd_btnNextTrainingDataImage.widthHint = 150;
+		gd_btnNextTrainingDataImage.widthHint = 170;
 		btnNextTrainingDataImage.setLayoutData(gd_btnNextTrainingDataImage);
 		btnNextTrainingDataImage.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -802,7 +802,7 @@ public class DriverDisplayAndController {
 			}
 		});
 		GridData gd_btnDeleteTrainingDataImage = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 2, 1);
-		gd_btnDeleteTrainingDataImage.widthHint = 156;
+		gd_btnDeleteTrainingDataImage.widthHint = 173;
 		btnDeleteTrainingDataImage.setLayoutData(gd_btnDeleteTrainingDataImage);
 		btnDeleteTrainingDataImage.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		btnDeleteTrainingDataImage.setText("Delete Training Set");
@@ -841,7 +841,7 @@ public class DriverDisplayAndController {
 		comboReAssignDirection = new Combo(trainingDataReviewConfigComposite, SWT.NONE);
 		GridData gd_comboReAssignDirection = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
 		gd_comboReAssignDirection.minimumWidth = 65;
-		gd_comboReAssignDirection.widthHint = 45;
+		gd_comboReAssignDirection.widthHint = 87;
 		comboReAssignDirection.setLayoutData(gd_comboReAssignDirection);
 		comboReAssignDirection.add("Forward");
 		comboReAssignDirection.add("Right");
