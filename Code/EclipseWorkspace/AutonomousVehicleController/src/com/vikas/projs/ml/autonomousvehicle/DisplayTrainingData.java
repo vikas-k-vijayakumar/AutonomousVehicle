@@ -52,6 +52,7 @@ public class DisplayTrainingData implements Runnable{
 				String queueCommand = trainingDataQueue.take();
 				int currentImageNumber = 1;
 				
+				//If data set needs to be deleted from the image
 				if(queueCommand == "DELETE"){
 					BufferedReader brdelete = new BufferedReader(new FileReader(trainingDataFileName));
 					//Delete image from the training data
@@ -93,6 +94,61 @@ public class DisplayTrainingData implements Runnable{
 					}					
 					
 				}
+								
+				//If the captured steering direction for the data set needs to be changed
+				if(queueCommand.startsWith("REASSIGN")){
+					String newSteeringDirection = queueCommand.substring(queueCommand.indexOf(",")+1, queueCommand.length());
+					BufferedReader brdelete = new BufferedReader(new FileReader(trainingDataFileName));
+					//create a temporary file, fill it with all sets, for the current data set reassign the steering direction
+					File tempTrainingFile = new File(trainingDataFileName+".temp");
+					tempTrainingFile.createNewFile();
+					FileWriter fWriter = new FileWriter(tempTrainingFile.getAbsoluteFile());
+					BufferedWriter bWriter = new BufferedWriter(fWriter);
+					
+					String line = null;
+					while((line = brdelete.readLine()) != null){
+						if (currentImageNumber == displayImageNumber){
+							//ReAssign steering direction
+							String[] columnValues = line.split(",");
+							for(int i=0;i<columnValues.length;i++){
+								//If Steering direction
+								if(i == (columnValues.length - 1)){
+									bWriter.write(newSteeringDirection);
+								}else{
+									bWriter.write(columnValues[i]);
+									bWriter.write(",");
+								}
+							}
+							bWriter.newLine();
+						}else{
+							bWriter.write(line);
+							bWriter.newLine();
+						}
+						currentImageNumber++;
+					}
+					bWriter.flush();
+					
+					//Close reader to original training data file
+					brdelete.close();
+					//Close writer to temp training data file
+					fWriter.close();
+					bWriter.close();
+					
+					//Rename temp file to original after deleting the original					
+					File originalTrainingFile = new File(trainingDataFileName);
+					if(originalTrainingFile.delete()){
+						logInfoToApplicationDisplay("Info: Successfully reassigned the steering direction");
+					}else{
+						logWarningToApplicationDisplay("WARNING: Error when trying to reassign the steering direction");
+					}
+					if(tempTrainingFile.renameTo(new File(trainingDataFileName))){
+						logInfoToApplicationDisplay("Info: Successfully renamed temporary training data file to original training data file");
+					}else{
+						logWarningToApplicationDisplay("WARNING: Error when trying to rename temporary training data file to original training data file");
+					}					
+					
+				}
+				
 				
 				//Display image
 				br = new BufferedReader(new FileReader(trainingDataFileName));
@@ -131,7 +187,8 @@ public class DisplayTrainingData implements Runnable{
 							if(predictedFeatureMessage != null){
 								//Display the predicted steering direction
 								displayPredictedTrainingDataSteeringDirection(predictedFeatureMessage.getSteeringDirection());
-								
+								//Display the confidence of the Neural Network in predicting the steering direction
+								updateSteeringPredictionConfidence(predictedFeatureMessage.getSteeringPredictionConfidence());
 								//Change the background color of canvas
 								//Green if the captured steering direction matches with the predicted steering direction
 								//Red if the captured steering direction doesn't match with the predicted steering direction
@@ -284,6 +341,15 @@ public class DisplayTrainingData implements Runnable{
 		}
 	}
 	
+	protected synchronized void reAssignSteeringDirection(int newSteeringDirection){
+		//Notify the thread to wake up
+		try {
+			trainingDataQueue.put("REASSIGN"+","+newSteeringDirection);
+		} catch (InterruptedException e) {
+			logErrorToApplicationDisplay(e, "Error: Interrupted when trying to process request for reassigning the steering direction");
+		}
+	}
+	
 	private void updateTrainingDataFrameButtonText(final int previous, final int current, final int next){
 		display.syncExec(new Runnable(){
 			public void run(){
@@ -296,6 +362,14 @@ public class DisplayTrainingData implements Runnable{
 		display.syncExec(new Runnable(){
 			public void run(){
 				DriverDisplayAndController.updateTrainingDataReviewLabelBgd(status);
+			}
+		});
+	}
+	
+	private void updateSteeringPredictionConfidence(final int predictionConfidence){
+		display.syncExec(new Runnable(){
+			public void run(){
+				DriverDisplayAndController.updateSteeringPredictionConfidence(predictionConfidence);
 			}
 		});
 	}

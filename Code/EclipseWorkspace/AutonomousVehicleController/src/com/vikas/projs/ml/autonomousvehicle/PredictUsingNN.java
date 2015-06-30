@@ -101,6 +101,8 @@ public class PredictUsingNN implements Runnable{
 		removePredictedTrainingDataSteeringDirection();
 		//Reset the background
 		updateTrainingDataReviewLabelBgd("BLUE");
+		//Remove the steering prediction confidence
+		removeSteeringPredictionConfidence();
 		predictSteeringDirectionThread.interrupt();
 	}
 	
@@ -177,13 +179,17 @@ public class PredictUsingNN implements Runnable{
 			if((predictedOutput.getEntry(0, 0) > predictedOutput.getEntry(1, 0)) && (predictedOutput.getEntry(0, 0) > predictedOutput.getEntry(2, 0))){
 				logInfoToApplicationDisplay("Info: Steering Prediction is Steer Forward");
 				returnFeatureMessage.setSteeringDirection(FeatureMessage.steerforward);
+				returnFeatureMessage.setSteeringPredictionConfidence((int) (Math.round(predictedOutput.getEntry(0, 0) * 100)));				
 			}else if((predictedOutput.getEntry(1, 0) > predictedOutput.getEntry(0, 0)) && (predictedOutput.getEntry(1, 0) > predictedOutput.getEntry(2, 0))){
 				logInfoToApplicationDisplay("Info: Steering Prediction is Steer Right");
 				returnFeatureMessage.setSteeringDirection(FeatureMessage.steerRight);
+				returnFeatureMessage.setSteeringPredictionConfidence((int) (Math.round(predictedOutput.getEntry(1, 0) * 100)));
 			}else{
 				logInfoToApplicationDisplay("Info: Steering Prediction is Steer Left");
 				returnFeatureMessage.setSteeringDirection(FeatureMessage.steerLeft);
+				returnFeatureMessage.setSteeringPredictionConfidence((int) (Math.round(predictedOutput.getEntry(2, 0) * 100)));
 			}
+			logInfoToApplicationDisplay("Info: Steering Confidence for Forward, Right & Left are - "+String.valueOf(Math.round(predictedOutput.getEntry(0, 0) * 100))+", "+String.valueOf(Math.round(predictedOutput.getEntry(1, 0) * 100))+", "+String.valueOf(Math.round(predictedOutput.getEntry(2, 0) * 100)));
 			
 		}catch (DimensionMismatchException e){
 			logErrorToApplicationDisplay(e, "Error: Predict Steering Direction has failed");
@@ -241,6 +247,14 @@ public class PredictUsingNN implements Runnable{
 		display.syncExec(new Runnable(){
 			public void run(){
 				DriverDisplayAndController.updateTrainingDataReviewLabelBgd(status);
+			}
+		});
+	}
+	
+	private void removeSteeringPredictionConfidence(){
+		display.syncExec(new Runnable(){
+			public void run(){
+				DriverDisplayAndController.updateSteeringPredictionConfidence(-1);
 			}
 		});
 	}

@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.Combo;
 
 /**
  * Implements the functionality required to provide a Front End Desktop application for the Autonomous car project
@@ -154,6 +155,15 @@ public class DriverDisplayAndController {
 	private static Button btnAssociatePredictionWeights;
 	private static Boolean predictionInProgress = false;
 	private PredictUsingNN predictUsingNN;
+	private Button btnReassignDirection;
+	private Combo comboReAssignDirection;
+	private Label label;
+	private Label label_1;
+	private Label label_2;
+	private Label label_3;
+	private Label label_4;
+	private static Text textTrainingPredictionConfidence;
+	private Label lblPredictionConfidence;
 
 	/**
 	 * Launch the application.
@@ -275,6 +285,13 @@ public class DriverDisplayAndController {
 			}
 		});
 		
+		label_3 = new Label(sensorConfigurationcomposite, SWT.SEPARATOR | SWT.HORIZONTAL);
+		GridData gd_label_3 = new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1);
+		gd_label_3.widthHint = 404;
+		label_3.setLayoutData(gd_label_3);
+		label_3.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
+		label_3.setFont(SWTResourceManager.getFont("Segoe UI", 14, SWT.BOLD));
+		
 		lblConnectionSetup = new Label(sensorConfigurationcomposite, SWT.NONE);
 		lblConnectionSetup.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
 		lblConnectionSetup.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
@@ -382,6 +399,13 @@ public class DriverDisplayAndController {
 				}				
 			}
 		});
+		
+		label_4 = new Label(sensorConfigurationcomposite, SWT.SEPARATOR | SWT.HORIZONTAL);
+		GridData gd_label_4 = new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1);
+		gd_label_4.widthHint = 411;
+		label_4.setLayoutData(gd_label_4);
+		label_4.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
+		label_4.setFont(SWTResourceManager.getFont("Segoe UI", 14, SWT.BOLD));
 		
 		lblStep_1 = new Label(sensorConfigurationcomposite, SWT.NONE);
 		lblStep_1.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
@@ -726,10 +750,17 @@ public class DriverDisplayAndController {
 		btnLoadTrainingDataFile.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		btnLoadTrainingDataFile.setText("Load");
 		
+		label_2 = new Label(trainingDataReviewConfigComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
+		GridData gd_label_2 = new GridData(SWT.FILL, SWT.CENTER, false, false, 4, 1);
+		gd_label_2.widthHint = 380;
+		label_2.setLayoutData(gd_label_2);
+		label_2.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
+		label_2.setFont(SWTResourceManager.getFont("Segoe UI", 14, SWT.BOLD));
+		
 		btnPreviousTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
 		GridData gd_btnPreviousTrainingDataImage = new GridData(SWT.RIGHT, SWT.CENTER, true, true, 2, 1);
-		gd_btnPreviousTrainingDataImage.widthHint = 192;
-		gd_btnPreviousTrainingDataImage.heightHint = 24;
+		gd_btnPreviousTrainingDataImage.widthHint = 159;
+		gd_btnPreviousTrainingDataImage.heightHint = 26;
 		btnPreviousTrainingDataImage.setLayoutData(gd_btnPreviousTrainingDataImage);
 		btnPreviousTrainingDataImage.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -745,7 +776,8 @@ public class DriverDisplayAndController {
 		
 		btnNextTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
 		GridData gd_btnNextTrainingDataImage = new GridData(SWT.LEFT, SWT.CENTER, true, true, 2, 1);
-		gd_btnNextTrainingDataImage.widthHint = 199;
+		gd_btnNextTrainingDataImage.heightHint = 27;
+		gd_btnNextTrainingDataImage.widthHint = 150;
 		btnNextTrainingDataImage.setLayoutData(gd_btnNextTrainingDataImage);
 		btnNextTrainingDataImage.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -769,11 +801,58 @@ public class DriverDisplayAndController {
 				}
 			}
 		});
-		GridData gd_btnDeleteTrainingDataImage = new GridData(SWT.CENTER, SWT.CENTER, false, false, 4, 1);
-		gd_btnDeleteTrainingDataImage.widthHint = 199;
+		GridData gd_btnDeleteTrainingDataImage = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 2, 1);
+		gd_btnDeleteTrainingDataImage.widthHint = 156;
 		btnDeleteTrainingDataImage.setLayoutData(gd_btnDeleteTrainingDataImage);
 		btnDeleteTrainingDataImage.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		btnDeleteTrainingDataImage.setText("Delete Training Set");
+		
+		btnReassignDirection = new Button(trainingDataReviewConfigComposite, SWT.NONE);
+		btnReassignDirection.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				//ReAssign the direction which was captured for the current training data set
+				//System.out.println(comboReAssignDirection.getText()+","+comboReAssignDirection.getText().trim());
+				if(displayTrainingData != null){
+					int newSteeringDirection = -1;
+					if(comboReAssignDirection.getText().trim().startsWith("Forward")){
+						logInfoToApplicationDisplay("INFO: Will reassign the steering direction to - Forward");
+						newSteeringDirection = Integer.valueOf(FeatureMessage.steerforward);
+					}else if(comboReAssignDirection.getText().trim().startsWith("Right")){
+						logInfoToApplicationDisplay("INFO: Will reassign the steering direction to - Right");
+						newSteeringDirection = Integer.valueOf(FeatureMessage.steerRight);
+					}else if(comboReAssignDirection.getText().trim().startsWith("Left")){
+						logInfoToApplicationDisplay("INFO: Will reassign the steering direction to - Left");
+						newSteeringDirection = Integer.valueOf(FeatureMessage.steerLeft);
+					}else{
+						logWarningToApplicationDisplay("WARNING: Unable to understand the provided steering direction for reassignment");
+					}
+					
+					if(newSteeringDirection != -1){
+						displayTrainingData.reAssignSteeringDirection(newSteeringDirection);
+					}
+					
+				}
+			}
+		});
+		btnReassignDirection.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		btnReassignDirection.setText("ReAssign Direction");
+		
+		comboReAssignDirection = new Combo(trainingDataReviewConfigComposite, SWT.NONE);
+		GridData gd_comboReAssignDirection = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
+		gd_comboReAssignDirection.minimumWidth = 65;
+		gd_comboReAssignDirection.widthHint = 45;
+		comboReAssignDirection.setLayoutData(gd_comboReAssignDirection);
+		comboReAssignDirection.add("Forward");
+		comboReAssignDirection.add("Right");
+		comboReAssignDirection.add("Left");
+		
+		label = new Label(trainingDataReviewConfigComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
+		label.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
+		label.setFont(SWTResourceManager.getFont("Segoe UI", 14, SWT.BOLD));
+		GridData gd_label = new GridData(SWT.FILL, SWT.CENTER, false, false, 4, 1);
+		gd_label.widthHint = 379;
+		label.setLayoutData(gd_label);
 		
 		lblPixelRowsToStripFromTopTrain = new Label(trainingDataReviewConfigComposite, SWT.NONE);
 		lblPixelRowsToStripFromTopTrain.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
@@ -823,6 +902,13 @@ public class DriverDisplayAndController {
 		});
 		btnResizeTrainingFile.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		btnResizeTrainingFile.setText("Resize Images in TrainingSet");
+		
+		label_1 = new Label(trainingDataReviewConfigComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
+		GridData gd_label_1 = new GridData(SWT.FILL, SWT.CENTER, false, false, 4, 1);
+		gd_label_1.widthHint = 375;
+		label_1.setLayoutData(gd_label_1);
+		label_1.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
+		label_1.setFont(SWTResourceManager.getFont("Segoe UI", 14, SWT.BOLD));
 		
 		capturedDataDirectoryName = new Text(trainingDataReviewConfigComposite, SWT.BORDER);
 		capturedDataDirectoryName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 4, 1));
@@ -892,6 +978,17 @@ public class DriverDisplayAndController {
 		GridData gd_lblTrainingDataPredictedSteeringDirection = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
 		gd_lblTrainingDataPredictedSteeringDirection.widthHint = -29;
 		lblTrainingDataPredictedSteeringDirection.setLayoutData(gd_lblTrainingDataPredictedSteeringDirection);
+		
+		lblPredictionConfidence = new Label(trainingDataReviewNavgationDetails, SWT.NONE);
+		lblPredictionConfidence.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		lblPredictionConfidence.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
+		lblPredictionConfidence.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false, 1, 1));
+		lblPredictionConfidence.setText("Prediction Confidence");
+		
+		textTrainingPredictionConfidence = new Text(trainingDataReviewNavgationDetails, SWT.BORDER);
+		textTrainingPredictionConfidence.setEditable(false);
+		textTrainingPredictionConfidence.setBackground(SWTResourceManager.getColor(255, 255, 204));
+		textTrainingPredictionConfidence.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 		
 		loggingComposite = new Composite(shell, SWT.NONE);
 		loggingComposite.setLayout(new GridLayout(5, false));
@@ -1365,4 +1462,16 @@ public class DriverDisplayAndController {
 		}
 	}
 	
+	
+	/**
+	 * Update the Steering direction Prediction confidence
+	 * @param predictionConfidence
+	 */
+	protected static synchronized void updateSteeringPredictionConfidence(int predictionConfidence){
+		if(predictionConfidence == -1){
+			textTrainingPredictionConfidence.setText("");
+		}else{
+			textTrainingPredictionConfidence.setText(String.valueOf(predictionConfidence)+" %");
+		}
+	}
 }

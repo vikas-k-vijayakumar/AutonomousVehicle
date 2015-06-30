@@ -14,6 +14,7 @@ public class FeatureMessage {
 	private byte[] framePixelData;
 	private String steeringDirection;
 	private int[] framePixelDataInt;
+	private int steeringPredictionConfidence;
 	
 	public static final String steerRight = "2";
 	public static final String steerLeft = "3";
@@ -55,5 +56,11 @@ public class FeatureMessage {
 	}
 	public void setFramePixelDataInt(int[] framePixelDataInt) {
 		this.framePixelDataInt = framePixelDataInt;
+	}
+	public int getSteeringPredictionConfidence() {
+		return steeringPredictionConfidence;
+	}
+	public void setSteeringPredictionConfidence(int steeringPredictionConfidence) {
+		this.steeringPredictionConfidence = steeringPredictionConfidence;
 	}
 }
