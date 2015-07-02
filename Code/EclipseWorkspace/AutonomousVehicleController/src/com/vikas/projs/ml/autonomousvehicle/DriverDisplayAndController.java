@@ -1,7 +1,9 @@
 package com.vikas.projs.ml.autonomousvehicle;
 
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -164,6 +166,7 @@ public class DriverDisplayAndController {
 	private Label label_4;
 	private static Text textTrainingPredictionConfidence;
 	private Label lblPredictionConfidence;
+	private Button btnPredictForAllDataSetsInFile;
 
 	/**
 	 * Launch the application.
@@ -1078,6 +1081,7 @@ public class DriverDisplayAndController {
 		textPredictNumberOfHiddenLayers.setText("1");
 		
 		btnAssociatePredictionWeights = new Button(predictionComposite, SWT.NONE);
+		btnAssociatePredictionWeights.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		btnAssociatePredictionWeights.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1125,8 +1129,150 @@ public class DriverDisplayAndController {
 			}
 		});
 		btnAssociatePredictionWeights.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
-		btnAssociatePredictionWeights.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
-		btnAssociatePredictionWeights.setText("Start Prediction");
+		btnAssociatePredictionWeights.setText("Associate Weights for Prediction");
+		
+		btnPredictForAllDataSetsInFile = new Button(predictionComposite, SWT.NONE);
+		btnPredictForAllDataSetsInFile.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				//Check if the prediction weights are associated and a filename if specified
+				if(predictUsingNN != null){
+					if(trainingFileNameUnderReview.getText() != null){
+						try{
+							
+							BufferedReader brTrainingFile = new BufferedReader(new FileReader(trainingFileNameUnderReview.getText()));		
+							String trainingSet = null;
+							
+							//Define variables for capturing stats
+							int trainingFileLineNumber = 0;
+							int noOfCorrectPredictions = 0;
+							int noOfForwardsInFiles = 0;
+							int noOfRightsInFiles = 0;
+							int noOfLeftsInFiles = 0;
+							int noOfForwardsPredictedCorrectly = 0;
+							int noOfRightsPredictedCorrectly = 0;
+							int noOfLeftsPredictedCorrectly = 0;
+							int noOfForwardsPredictedAsRight = 0;
+							int noOfForwardsPredictedAsLeft = 0;
+							int noOfRightsPredictedAsForward = 0;
+							int noOfRightsPredictedAsLeft = 0;
+							int noOfLeftsPredictedAsForward = 0;
+							int noOfLeftsPredictedAsRight = 0;		
+							
+							while((trainingSet = brTrainingFile.readLine()) != null){
+								trainingFileLineNumber++;
+								
+								String[] columnValues = trainingSet.split(",");
+								int[] framePixelData = new int[columnValues.length - 1];
+								int actualSteeringDirection = -1;			
+								for(int i=0;i<columnValues.length;i++){
+									if(i == (columnValues.length - 1)){
+										actualSteeringDirection = Integer.valueOf(columnValues[i]);
+										if(actualSteeringDirection == 1){
+											noOfForwardsInFiles++;
+										}else if(actualSteeringDirection == 2){
+											noOfRightsInFiles++;
+										}else if(actualSteeringDirection == 3){
+											noOfLeftsInFiles++;
+										}else{
+											//Do Nothing
+										}
+									}else{
+										framePixelData[i] = Integer.valueOf(columnValues[i]);
+									}
+								}
+									
+								FeatureMessage featureMessage = new FeatureMessage();
+								featureMessage.setFramePixelDataInt(framePixelData);
+								FeatureMessage returnedFeatureMessage = predictUsingNN.predictSteeringDirection(featureMessage);
+								int javaPredictedSteeringDirection = Integer.valueOf(returnedFeatureMessage.getSteeringDirection());
+								
+								if(actualSteeringDirection == javaPredictedSteeringDirection){
+									noOfCorrectPredictions++;
+										if(actualSteeringDirection == 1){
+											noOfForwardsPredictedCorrectly++;
+										}else if(actualSteeringDirection == 2){
+											noOfRightsPredictedCorrectly++;
+										}else if(actualSteeringDirection == 3){
+											noOfLeftsPredictedCorrectly++;
+										}else{
+											//Do Nothing
+										}
+								}else{
+										if(actualSteeringDirection == 1){
+											if(javaPredictedSteeringDirection == 2){
+												noOfForwardsPredictedAsRight++;
+											}else if(javaPredictedSteeringDirection == 3){
+												noOfForwardsPredictedAsLeft++;
+											}else{
+												//Do Nothing
+											}
+										}else if(actualSteeringDirection == 2){
+											if(javaPredictedSteeringDirection == 1){
+												noOfRightsPredictedAsForward++;
+											}else if(javaPredictedSteeringDirection == 3){
+												noOfRightsPredictedAsLeft++;
+											}else{
+												//Do Nothing
+											}
+										}else if(actualSteeringDirection == 3){
+											if(javaPredictedSteeringDirection == 1){
+												noOfLeftsPredictedAsForward++;
+											}else if(javaPredictedSteeringDirection == 2){
+												noOfLeftsPredictedAsRight++;
+											}else{
+												//Do Nothing
+											}
+										}else{
+											//Do Nothing
+										}
+								}
+											
+							}	
+							brTrainingFile.close();
+							
+							//Output the stats
+							logInfoToApplicationDisplay("");
+							logInfoToApplicationDisplay("");
+							logInfoToApplicationDisplay("=====================================");
+							logInfoToApplicationDisplay("=====================================");
+							logInfoToApplicationDisplay("Number of data sets in file = "+trainingFileLineNumber);
+							logInfoToApplicationDisplay("Predicted correctly percentage = "+((noOfCorrectPredictions / trainingFileLineNumber)*100)+" %");
+							logInfoToApplicationDisplay("-------------------------------------");
+							logInfoToApplicationDisplay("Number of Forward steers = "+noOfForwardsInFiles);
+							logInfoToApplicationDisplay("Predicted correctly percentage= "+((noOfForwardsPredictedCorrectly / noOfForwardsInFiles)*100)+" %");
+							logInfoToApplicationDisplay("Predicted wrongly as Right percentage= "+((noOfForwardsPredictedAsRight / noOfForwardsInFiles)*100)+" %");
+							logInfoToApplicationDisplay("Predicted wrongly as Left percentage= "+((noOfForwardsPredictedAsLeft / noOfForwardsInFiles)*100)+" %");
+							logInfoToApplicationDisplay("-------------------------------------");
+							logInfoToApplicationDisplay("Number of Right steers = "+noOfRightsInFiles);
+							logInfoToApplicationDisplay("Predicted correctly percentage= "+((noOfRightsPredictedCorrectly / noOfRightsInFiles)*100)+" %");
+							logInfoToApplicationDisplay("Predicted wrongly as Forward percentage= "+((noOfRightsPredictedAsForward / noOfRightsInFiles)*100)+" %");
+							logInfoToApplicationDisplay("Predicted wrongly as Left percentage= "+((noOfRightsPredictedAsLeft / noOfRightsInFiles)*100)+" %");
+							logInfoToApplicationDisplay("-------------------------------------");
+							logInfoToApplicationDisplay("Number of Left steers = "+noOfLeftsInFiles);
+							logInfoToApplicationDisplay("Predicted correctly percentage= "+((noOfLeftsPredictedCorrectly / noOfLeftsInFiles)*100)+" %");
+							logInfoToApplicationDisplay("Predicted wrongly as Forward percentage= "+((noOfLeftsPredictedAsForward / noOfLeftsInFiles)*100)+" %");
+							logInfoToApplicationDisplay("Predicted wrongly as Right percentage= "+((noOfLeftsPredictedAsRight / noOfLeftsInFiles)*100)+" %");							
+							logInfoToApplicationDisplay("=====================================");
+							logInfoToApplicationDisplay("=====================================");
+							logInfoToApplicationDisplay("");
+							logInfoToApplicationDisplay("");
+
+						}catch(Exception e2){
+							logErrorToApplicationDisplay(e2, "Error with the training file");
+						}
+					}else{
+						logWarningToApplicationDisplay("WARN: Specify a valid training file");
+					}
+				}else{
+					logWarningToApplicationDisplay("WARN: Prediction weights have not been associated");
+				}
+				
+			}
+		});
+		btnPredictForAllDataSetsInFile.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		btnPredictForAllDataSetsInFile.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		btnPredictForAllDataSetsInFile.setText("Bulk Predict");
 		
 		lblPredictWeightsForInputLayer = new Label(predictionComposite, SWT.NONE);
 		lblPredictWeightsForInputLayer.setSize(87, 40);
