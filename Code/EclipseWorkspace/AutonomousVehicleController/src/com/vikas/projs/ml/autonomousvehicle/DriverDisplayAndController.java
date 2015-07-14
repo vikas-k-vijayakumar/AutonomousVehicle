@@ -1019,8 +1019,8 @@ public class DriverDisplayAndController {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if(chkbtnInfoLogging.getSelection()){
-					logInfoToApplicationDisplay("Info: Information logging is enabled");
 					infoLoggingRequired = true;
+					logInfoToApplicationDisplay("Info: Information logging is enabled");					
 				}else{
 					logInfoToApplicationDisplay("Info: Information logging is disabled");
 					infoLoggingRequired = false;
@@ -1142,22 +1142,24 @@ public class DriverDisplayAndController {
 							
 							BufferedReader brTrainingFile = new BufferedReader(new FileReader(trainingFileNameUnderReview.getText()));		
 							String trainingSet = null;
+							chkbtnInfoLogging.setSelection(true);
+							infoLoggingRequired = true;
 							
 							//Define variables for capturing stats
-							int trainingFileLineNumber = 0;
-							int noOfCorrectPredictions = 0;
-							int noOfForwardsInFiles = 0;
-							int noOfRightsInFiles = 0;
-							int noOfLeftsInFiles = 0;
-							int noOfForwardsPredictedCorrectly = 0;
-							int noOfRightsPredictedCorrectly = 0;
-							int noOfLeftsPredictedCorrectly = 0;
-							int noOfForwardsPredictedAsRight = 0;
-							int noOfForwardsPredictedAsLeft = 0;
-							int noOfRightsPredictedAsForward = 0;
-							int noOfRightsPredictedAsLeft = 0;
-							int noOfLeftsPredictedAsForward = 0;
-							int noOfLeftsPredictedAsRight = 0;		
+							float trainingFileLineNumber = 0;
+							float noOfCorrectPredictions = 0;
+							float noOfForwardsInFiles = 0;
+							float noOfRightsInFiles = 0;
+							float noOfLeftsInFiles = 0;
+							float noOfForwardsPredictedCorrectly = 0;
+							float noOfRightsPredictedCorrectly = 0;
+							float noOfLeftsPredictedCorrectly = 0;
+							float noOfForwardsPredictedAsRight = 0;
+							float noOfForwardsPredictedAsLeft = 0;
+							float noOfRightsPredictedAsForward = 0;
+							float noOfRightsPredictedAsLeft = 0;
+							float noOfLeftsPredictedAsForward = 0;
+							float noOfLeftsPredictedAsRight = 0;		
 							
 							while((trainingSet = brTrainingFile.readLine()) != null){
 								trainingFileLineNumber++;
@@ -1232,27 +1234,37 @@ public class DriverDisplayAndController {
 							brTrainingFile.close();
 							
 							//Output the stats
+							float predictedCorrectlyPercent = (noOfCorrectPredictions / trainingFileLineNumber)*100;
+							float forwardsPredictedCorrectlyPercent = (noOfForwardsPredictedCorrectly / noOfForwardsInFiles)*100;
+							float forwardsPredictedAsRight = (noOfForwardsPredictedAsRight / noOfForwardsInFiles)*100;
+							float forwardsPredictedAsLeft = (noOfForwardsPredictedAsLeft / noOfForwardsInFiles)*100;
+							float rightsPredictedCorrectlyPercent = (noOfRightsPredictedCorrectly / noOfRightsInFiles)*100;
+							float rightsPredictedAsForward = (noOfRightsPredictedAsForward / noOfRightsInFiles)*100;
+							float rightsPredictedAsLeft = (noOfRightsPredictedAsLeft / noOfRightsInFiles)*100;
+							float leftsPredictedCorrectlyPercent = (noOfLeftsPredictedCorrectly / noOfLeftsInFiles)*100;
+							float leftsPredcitedAsForward = (noOfLeftsPredictedAsForward / noOfLeftsInFiles)*100;
+							float leftsPredictedAsRight = (noOfLeftsPredictedAsRight / noOfLeftsInFiles)*100;
 							logInfoToApplicationDisplay("");
 							logInfoToApplicationDisplay("");
 							logInfoToApplicationDisplay("=====================================");
 							logInfoToApplicationDisplay("=====================================");
-							logInfoToApplicationDisplay("Number of data sets in file = "+trainingFileLineNumber);
-							logInfoToApplicationDisplay("Predicted correctly percentage = "+((noOfCorrectPredictions / trainingFileLineNumber)*100)+" %");
+							logInfoToApplicationDisplay("Number of data sets in file = "+Integer.valueOf((int) Math.floor(trainingFileLineNumber)));
+							logInfoToApplicationDisplay("Predicted correctly percentage = "+Math.round(predictedCorrectlyPercent)+" %");
 							logInfoToApplicationDisplay("-------------------------------------");
-							logInfoToApplicationDisplay("Number of Forward steers = "+noOfForwardsInFiles);
-							logInfoToApplicationDisplay("Predicted correctly percentage= "+((noOfForwardsPredictedCorrectly / noOfForwardsInFiles)*100)+" %");
-							logInfoToApplicationDisplay("Predicted wrongly as Right percentage= "+((noOfForwardsPredictedAsRight / noOfForwardsInFiles)*100)+" %");
-							logInfoToApplicationDisplay("Predicted wrongly as Left percentage= "+((noOfForwardsPredictedAsLeft / noOfForwardsInFiles)*100)+" %");
+							logInfoToApplicationDisplay("Number of Forward steers = "+Integer.valueOf((int) Math.floor(noOfForwardsInFiles)));
+							logInfoToApplicationDisplay("Predicted correctly percentage= "+Math.round(forwardsPredictedCorrectlyPercent)+" %");
+							logInfoToApplicationDisplay("Predicted wrongly as Right percentage= "+Math.round(forwardsPredictedAsRight)+" %");
+							logInfoToApplicationDisplay("Predicted wrongly as Left percentage= "+Math.round(forwardsPredictedAsLeft)+" %");
 							logInfoToApplicationDisplay("-------------------------------------");
-							logInfoToApplicationDisplay("Number of Right steers = "+noOfRightsInFiles);
-							logInfoToApplicationDisplay("Predicted correctly percentage= "+((noOfRightsPredictedCorrectly / noOfRightsInFiles)*100)+" %");
-							logInfoToApplicationDisplay("Predicted wrongly as Forward percentage= "+((noOfRightsPredictedAsForward / noOfRightsInFiles)*100)+" %");
-							logInfoToApplicationDisplay("Predicted wrongly as Left percentage= "+((noOfRightsPredictedAsLeft / noOfRightsInFiles)*100)+" %");
+							logInfoToApplicationDisplay("Number of Right steers = "+Integer.valueOf((int) Math.floor(noOfRightsInFiles)));
+							logInfoToApplicationDisplay("Predicted correctly percentage= "+Math.round(rightsPredictedCorrectlyPercent)+" %");
+							logInfoToApplicationDisplay("Predicted wrongly as Forward percentage= "+Math.round(rightsPredictedAsForward)+" %");
+							logInfoToApplicationDisplay("Predicted wrongly as Left percentage= "+Math.round(rightsPredictedAsLeft)+" %");
 							logInfoToApplicationDisplay("-------------------------------------");
-							logInfoToApplicationDisplay("Number of Left steers = "+noOfLeftsInFiles);
-							logInfoToApplicationDisplay("Predicted correctly percentage= "+((noOfLeftsPredictedCorrectly / noOfLeftsInFiles)*100)+" %");
-							logInfoToApplicationDisplay("Predicted wrongly as Forward percentage= "+((noOfLeftsPredictedAsForward / noOfLeftsInFiles)*100)+" %");
-							logInfoToApplicationDisplay("Predicted wrongly as Right percentage= "+((noOfLeftsPredictedAsRight / noOfLeftsInFiles)*100)+" %");							
+							logInfoToApplicationDisplay("Number of Left steers = "+Integer.valueOf((int) Math.floor(noOfLeftsInFiles)));
+							logInfoToApplicationDisplay("Predicted correctly percentage= "+Math.round(leftsPredictedCorrectlyPercent)+" %");
+							logInfoToApplicationDisplay("Predicted wrongly as Forward percentage= "+Math.round(leftsPredcitedAsForward)+" %");
+							logInfoToApplicationDisplay("Predicted wrongly as Right percentage= "+Math.round(leftsPredictedAsRight)+" %");							
 							logInfoToApplicationDisplay("=====================================");
 							logInfoToApplicationDisplay("=====================================");
 							logInfoToApplicationDisplay("");
