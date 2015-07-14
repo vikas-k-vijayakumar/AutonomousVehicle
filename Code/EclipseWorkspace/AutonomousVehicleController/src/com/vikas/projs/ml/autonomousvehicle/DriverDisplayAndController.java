@@ -1283,7 +1283,7 @@ public class DriverDisplayAndController {
 			}
 		});
 		btnPredictForAllDataSetsInFile.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
-		btnPredictForAllDataSetsInFile.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		btnPredictForAllDataSetsInFile.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 1, 1));
 		btnPredictForAllDataSetsInFile.setText("Bulk Predict");
 		
 		lblPredictWeightsForInputLayer = new Label(predictionComposite, SWT.NONE);
@@ -1304,7 +1304,7 @@ public class DriverDisplayAndController {
 		lblPredictWeightsForFirstHiddenLayer.setText("Weights for \r\nFirst Hidden Layer");
 		
 		textPredictWeightsForFirstHiddenLayer = new Text(predictionComposite, SWT.BORDER);
-		GridData gd_textPredictWeightsForFirstHiddenLayer = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		GridData gd_textPredictWeightsForFirstHiddenLayer = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_textPredictWeightsForFirstHiddenLayer.widthHint = 172;
 		textPredictWeightsForFirstHiddenLayer.setLayoutData(gd_textPredictWeightsForFirstHiddenLayer);
 		textPredictWeightsForFirstHiddenLayer.setSize(180, 26);
@@ -1326,7 +1326,7 @@ public class DriverDisplayAndController {
 		lblPredictWeightsForThirdHiddenLayer.setText("Weights for \r\nThird Hidden Layer");
 		
 		textPredictWeightsForThirdHiddenLayer = new Text(predictionComposite, SWT.BORDER);
-		textPredictWeightsForThirdHiddenLayer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		textPredictWeightsForThirdHiddenLayer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		textPredictWeightsForThirdHiddenLayer.setSize(654, 26);
 		textPredictWeightsForThirdHiddenLayer.setBackground(SWTResourceManager.getColor(255, 255, 204));
 
