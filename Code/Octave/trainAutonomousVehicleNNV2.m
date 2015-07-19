@@ -22,14 +22,14 @@ Hidden_Layer_Count = size(hidden_layer_size,1);
 %  Maximum Iterations for the Neural Network training
 nnMaxIterations = 100;
 %  Cost and Gradient Regularization
-lambda = 0.01;
+lambda = 5;
 
 %% =========== Part 1: Loading Data =============
 
 % Load Training Data
 printf("Loading Training Sets ...\n");
 
-ReadData=dlmread('D://Temp//AVC_TrainingData_2015-06-27_11-40-19_Resized-64-x-176_scaled.csv');
+ReadData=dlmread('Data//NNTrainingResults//TrainingVersion-1//Training//AVC_TrainingData_2015-07-19_23-00-14_MeanNormalized.csv');
 X = ReadData(:, 1:input_layer_size);
 y = ReadData(:,input_layer_size+1);
 m = size(X, 1);

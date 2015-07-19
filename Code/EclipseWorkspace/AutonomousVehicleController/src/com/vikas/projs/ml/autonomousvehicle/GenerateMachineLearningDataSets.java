@@ -10,6 +10,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Random;
 
 import org.eclipse.swt.widgets.Display;
 
@@ -24,7 +27,7 @@ public class GenerateMachineLearningDataSets {
 	private ArrayList<File> capturedDataFileList =  new ArrayList<File>();
 	private Display display;
 	
-	public void createDataFiles(String capturedDataDirectoryName, Display display){
+	public void createDataFiles(String capturedDataDirectoryName, Display display, int percentInTrainingFile, int percentInCrossValidationFile, int percentInTestingFile){
 		this.display = display;
 		//Get all csv files under the directory
 		getAllCSVFiles(capturedDataDirectoryName, capturedDataFileList);
@@ -61,9 +64,62 @@ public class GenerateMachineLearningDataSets {
 				fWriterTesting = new FileWriter(testingFile.getAbsoluteFile());
 				bWriterTesting = new BufferedWriter(fWriterTesting);
 				
+				//Read all files. Store each line of the file using a random key into a hashmap. 
+				int fileCount=1;
+				int noOfDatasets=0;
+				HashMap<Integer, String> featureHash = new HashMap<>();
+				Random randomIntGenerator = new Random();
+				for (File csvFile : capturedDataFileList){
+					BufferedReader br = new BufferedReader(new FileReader(csvFile));
+					String dataSet = null;
+					
+					while((dataSet = br.readLine()) != null ){
+						//Write one line into hashmap
+						if(dataSet != null){
+							//Generate a random key and ensure that is not already present in hashmap
+							int key = randomIntGenerator.nextInt(100000);
+							while(true){
+								if(featureHash.get(key) != null){
+									key = randomIntGenerator.nextInt(100000);
+								}else{
+									break;
+								}
+							}
+							featureHash.put(key, dataSet);
+							noOfDatasets++;
+						}
+					}
+					logInfoToApplicationDisplay("Successfully finished processing file number "+fileCount+" out of a total of "+capturedDataFileList.size());
+					fileCount++;
+					br.close();
+				}
+				
+				//Distribute the contents of the hashmap into the various files based on the provided percentages
+				int noOfDatasetsInTestingFile = (int) Math.floor((noOfDatasets / 100) * percentInTestingFile);
+				int noOfDatasetsInCVFile = (int) Math.floor((noOfDatasets / 100) * percentInCrossValidationFile);
+				int noOfDatasetsInTrainingFile = noOfDatasets - (noOfDatasetsInTestingFile + noOfDatasetsInCVFile);
+				Iterator<String> featureIterator = featureHash.values().iterator();
+				int noOfLinesProcessed=0;
+				while(featureIterator.hasNext()){
+					noOfLinesProcessed++;
+					if(noOfLinesProcessed < noOfDatasetsInTestingFile){
+						bWriterTesting.write(featureIterator.next());
+						bWriterTesting.newLine();
+					}else if(noOfLinesProcessed < (noOfDatasetsInTestingFile + noOfDatasetsInCVFile)){
+						bWriterCV.write(featureIterator.next());
+						bWriterCV.newLine();
+					}else{
+						bWriterTraining.write(featureIterator.next());
+						bWriterTraining.newLine();
+					}
+
+				}
+				logInfoToApplicationDisplay("Finished distributing "+noOfDatasetsInTestingFile+"datasets into Testing file, "+noOfDatasetsInCVFile+""
+						+ " datasets into Cross Validation file and "+noOfDatasetsInTrainingFile+" into Training file from a total of "+noOfDatasets+" datasets");
+				
 				//Open files one by one and distribute the training sets amongst Training, Cross Validation
 				//and Testing data file
-				int fileCount=1;
+				/*int fileCount=1;
 				for (File csvFile : capturedDataFileList){
 					BufferedReader br = new BufferedReader(new FileReader(csvFile));
 					
@@ -91,7 +147,7 @@ public class GenerateMachineLearningDataSets {
 					logInfoToApplicationDisplay("Successfully finished processing file number "+fileCount+" out of a total of "+capturedDataFileList.size());
 					br.close();
 					fileCount++;
-				}
+				}*/
 				bWriterTraining.flush();
 				bWriterCV.flush();
 				bWriterTesting.flush();
@@ -102,7 +158,6 @@ public class GenerateMachineLearningDataSets {
 				bWriterTraining.close();
 				bWriterCV.close();
 				bWriterTesting.close();
-				//TBD - Randomly distribute the data sets in each of the three new files
 				
 				displayInfoMessageOnscreen("Successfully finished processing a total of "+capturedDataFileList.size()+" files");
 			} catch (IOException e1) {

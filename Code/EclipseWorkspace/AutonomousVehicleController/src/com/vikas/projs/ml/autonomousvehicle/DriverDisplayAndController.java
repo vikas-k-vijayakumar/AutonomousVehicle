@@ -173,6 +173,8 @@ public class DriverDisplayAndController {
 	private Label lblStdDeviationFile;
 	private Text meanFileLocation;
 	private Text stdDeviationFileLocation;
+	private Label lblPercentageSplit;
+	private Text textSplitPercentage;
 
 	/**
 	 * Launch the application.
@@ -946,12 +948,18 @@ public class DriverDisplayAndController {
 		label_1.setFont(SWTResourceManager.getFont("Segoe UI", 14, SWT.BOLD));
 		
 		capturedDataDirectoryName = new Text(trainingDataReviewConfigComposite, SWT.BORDER);
-		capturedDataDirectoryName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 5, 1));
+		capturedDataDirectoryName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 4, 1));
 		capturedDataDirectoryName.setToolTipText("Directory where the captured data is present in .csv files");
 		capturedDataDirectoryName.setBackground(SWTResourceManager.getColor(255, 228, 196));
 		
+		textSplitPercentage = new Text(trainingDataReviewConfigComposite, SWT.BORDER);
+		textSplitPercentage.setToolTipText("Percentage split between training, cross validation and testing files");
+		textSplitPercentage.setBackground(SWTResourceManager.getColor(255, 255, 204));
+		textSplitPercentage.setText("60,20,20");
+		textSplitPercentage.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 1, 1));
+		
 		btnGenerateSets = new Button(trainingDataReviewConfigComposite, SWT.NONE);
-		GridData gd_btnGenerateSets = new GridData(SWT.CENTER, SWT.CENTER, false, false, 5, 1);
+		GridData gd_btnGenerateSets = new GridData(SWT.CENTER, SWT.CENTER, false, false, 4, 1);
 		gd_btnGenerateSets.widthHint = 382;
 		btnGenerateSets.setLayoutData(gd_btnGenerateSets);
 		btnGenerateSets.addSelectionListener(new SelectionAdapter() {
@@ -959,8 +967,22 @@ public class DriverDisplayAndController {
 			public void widgetSelected(SelectionEvent e) {
 				logInfoToApplicationDisplay("Info: Will start generating Training, Cross Validation and Testing data files");
 				if(capturedDataDirectoryName.getText() != null){
-					GenerateMachineLearningDataSets GMLD = new GenerateMachineLearningDataSets();
-					GMLD.createDataFiles(capturedDataDirectoryName.getText(), display);
+					String[] splitPercentage = textSplitPercentage.getText().split(",");
+					//ValidateUserInputs	
+					if(splitPercentage.length != 3){
+						displayErrorMessageOnscreen("Provide Percentage splits for all three files");
+					}else if(!Utilities.validateInteger(splitPercentage[0], 0, 100)){
+						displayErrorMessageOnscreen("Percentage split for training file must be between 0 and 100");
+					}else if(!Utilities.validateInteger(splitPercentage[1], 0, 100)){
+						displayErrorMessageOnscreen("Percentage split for cross validation file must be between 0 and 100");
+					}else if(!Utilities.validateInteger(splitPercentage[2], 0, 100)){
+						displayErrorMessageOnscreen("Percentage split for testing file must be between 0 and 100");
+					}else if((Integer.valueOf(splitPercentage[0]) + Integer.valueOf(splitPercentage[1]) + Integer.valueOf(splitPercentage[2])) > 100){
+						displayErrorMessageOnscreen("Sum of Percentage splits cannot exceed 100");
+					}else{
+						GenerateMachineLearningDataSets GMLD = new GenerateMachineLearningDataSets();
+						GMLD.createDataFiles(capturedDataDirectoryName.getText(), display, Integer.valueOf(splitPercentage[0]), Integer.valueOf(splitPercentage[1]), Integer.valueOf(splitPercentage[2]));
+					}
 				}else{
 					displayErrorMessageOnscreen("Supply a value for the directory where the captured data is present");
 				}
@@ -969,6 +991,11 @@ public class DriverDisplayAndController {
 		btnGenerateSets.setSize(349, 30);
 		btnGenerateSets.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		btnGenerateSets.setText("Generate Training, Cross \r\nValidation and Testing sets");
+		
+		lblPercentageSplit = new Label(trainingDataReviewConfigComposite, SWT.NONE);
+		lblPercentageSplit.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		lblPercentageSplit.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		lblPercentageSplit.setText("Percentage Split");
 		
 		label_5 = new Label(trainingDataReviewComposite, SWT.SEPARATOR | SWT.VERTICAL);
 		GridData gd_label_5 = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
