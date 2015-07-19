@@ -106,7 +106,7 @@ public class PredictUsingNN implements Runnable{
 			logWarningToApplicationDisplay("Couldn't find any values in the standard deviations file");
 		}
 		brsd.close();
-		
+
 		//Create and start a Thread
 		predictSteeringDirectionThread = new Thread(this);
 		predictSteeringDirectionThread.start();

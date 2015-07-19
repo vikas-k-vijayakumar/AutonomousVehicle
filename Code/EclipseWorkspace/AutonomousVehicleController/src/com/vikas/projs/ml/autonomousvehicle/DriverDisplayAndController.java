@@ -828,7 +828,6 @@ public class DriverDisplayAndController {
 		GridData gd_label = new GridData(SWT.FILL, SWT.CENTER, true, false, 5, 1);
 		gd_label.widthHint = 435;
 		label.setLayoutData(gd_label);
-		
 		btnDeleteTrainingDataImage = new Button(trainingDataReviewConfigComposite, SWT.NONE);
 		btnDeleteTrainingDataImage.addSelectionListener(new SelectionAdapter() {
 			@Override
