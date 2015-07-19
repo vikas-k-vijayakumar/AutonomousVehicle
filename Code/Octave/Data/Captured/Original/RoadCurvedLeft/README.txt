@@ -1,0 +1,1 @@
+This is the data captured when the vehicle is going on a road that is curved to the left

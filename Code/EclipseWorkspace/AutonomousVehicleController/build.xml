@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<project name="AutonomousVehicleController" default="main" basedir=".">
+  <!-- Sets variables which can later be used. -->
+  <!-- The value of a property is accessed via ${} -->
+  <property name="src.dir" location="src" />
+  <property name="build.dir" location="bin" />
+  <property name="dist.dir" location="dist" />
+  <property name="eclipsePlugin.dir" location="D:/Eclipse/eclipse/plugins" />
+  <property name="jdk.dir" location="C:/Program Files (x86)/Java/jdk1.7.0_71" />
+  <property name="user.name" location="Vikas K Vijayakumar (kvvikas@yahoo.co.in)" />
+  
+  <!--Create a classpath container which can be later used in the ant task-->
+  <path id="build.classpath">
+    <fileset dir="${eclipsePlugin.dir}">
+		<include name="org.eclipse.osgi.source_3.8.0.v20120529-1548.jar" />
+    	<include name="org.eclipse.core.commands.source_3.6.1.v20120521-2329.jar" />
+    	<include name="org.eclipse.equinox.common.source_3.6.100.v20120522-1841.jar" />
+    	<include name="org.eclipse.equinox.registry.source_3.5.200.v20120522-1841.jar" />
+		<include name="org.eclipse.core.runtime.source_3.8.0.v20120521-2346.jar" />
+		<include name="org.eclipse.text.source_3.5.200.v20120523-1310.jar" />
+		<include name="org.eclipse.ui.workbench.source_3.103.0.v20120530-1824.jar" />
+		<include name="com.ibm.icu.source_4.4.2.v20110823.jar" />
+		<include name="org.eclipse.ui.forms.source_3.5.200.v20120521-2329.jar" />
+		<include name="org.eclipse.swt.*.jar" />
+		<include name="org.eclipse.jface*.jar" />		
+    </fileset>
+  </path>
+
+  <!-- Deletes the existing build and dist directory-->
+  <target name="clean">
+    <delete dir="${build.dir}" />
+    <delete dir="${dist.dir}" />
+  </target>
+
+  <!-- Creates the  build and dist directory-->
+  <target name="makedir">
+    <mkdir dir="${build.dir}" />
+    <mkdir dir="${dist.dir}" />
+  </target>
+
+  <!-- Compiles the java code -->
+  <target name="compile" depends="clean, makedir">
+    <javac srcdir="${src.dir}" 
+    	destdir="${build.dir}" 
+    	excludes="com/vikas/projs/ml/autonomousvehicle/test/**" 
+    	includeantruntime="false" 
+    	classpathref="build.classpath" 
+    	executable="${jdk.dir}/bin/javac" fork="true" taskname="javac1.7">
+    </javac>
+  </target>
+
+  <!--Creates the deployable jar file  -->
+  <target name="jar" depends="compile">
+	<delete file="${dist.dir}\AutonomousVehicleController.jar" />
+    <jar destfile="${dist.dir}\AutonomousVehicleController.jar" basedir="${build.dir}" filesetmanifest="mergewithoutmain">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}" />
+        <attribute name="Implementation-Vendor" value="Vikas K Vijayakumar(kvvikas@yahoo.co.in)" />
+        <attribute name="Implementation-Title" value="AutonomousVehicleController" />
+        <attribute name="Implementation-Version" value="1.0.0.0" />
+        <attribute name="Main-Class" value="com.vikas.projs.ml.autonomousvehicle.DriverDisplayAndController" />
+		<attribute name="Class-Path" value="."/>
+      </manifest>
+      <zipfileset excludes="META-INF/*.SF" src="${eclipsePlugin.dir}/org.eclipse.osgi_3.8.0.v20120529-1548.jar"/>
+      <zipfileset excludes="META-INF/*.SF" src="${eclipsePlugin.dir}/org.eclipse.core.commands_3.6.1.v20120521-2329.jar"/>
+      <zipfileset excludes="META-INF/*.SF" src="${eclipsePlugin.dir}/org.eclipse.equinox.common_3.6.100.v20120522-1841.jar"/>
+      <zipfileset excludes="META-INF/*.SF" src="${eclipsePlugin.dir}/org.eclipse.equinox.registry_3.5.200.v20120522-1841.jar"/>
+      <zipfileset excludes="META-INF/*.SF" src="${eclipsePlugin.dir}/org.eclipse.core.runtime_3.8.0.v20120521-2346.jar"/>
+      <zipfileset excludes="META-INF/*.SF" src="${eclipsePlugin.dir}/org.eclipse.text_3.5.200.v20120523-1310.jar"/>
+      <zipfileset excludes="META-INF/*.SF" src="${eclipsePlugin.dir}/org.eclipse.swt.win32.win32.x86_3.100.0.v4233d.jar"/>
+      <zipfileset excludes="META-INF/*.SF" src="${eclipsePlugin.dir}/org.eclipse.jface_3.8.0.v20120521-2329.jar"/>
+      <zipfileset excludes="META-INF/*.SF" src="${eclipsePlugin.dir}/org.eclipse.jface.text_3.8.0.v20120531-0600.jar"/>
+      <zipfileset excludes="META-INF/*.SF" src="${eclipsePlugin.dir}/org.eclipse.ui.workbench_3.103.0.v20120530-1824.jar"/>
+      <zipfileset excludes="META-INF/*.SF" src="${eclipsePlugin.dir}/com.ibm.icu_4.4.2.v20110823.jar"/>
+      <zipfileset excludes="META-INF/*.SF" src="${eclipsePlugin.dir}/org.eclipse.ui.forms_3.5.200.v20120521-2329.jar"/>	  
+    </jar>
+  </target>
+
+  <target name="main" depends="compile, jar">
+    <description>Main target</description>
+  </target>
+
+</project> 

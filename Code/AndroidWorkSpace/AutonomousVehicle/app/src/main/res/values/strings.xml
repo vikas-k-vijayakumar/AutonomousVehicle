@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Autonomous Vehicle Sensor App</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="textBoxLiveRun">LiveRun</string>
+    <string name="textBoxStreamingPortNumber">Streaming Port Number</string>
+    <string name="defaultStreamingPortNumber">6666</string>
+    <string name="textBoxTopPixelStripNumber">Number of Pixel rows to strip from top</string>
+    <string name="defaultTopPixelStripNumber">40</string>
+    <string name="textBoxBottomPixelStripNumber">Number of Pixel rows to strip from bottom</string>
+    <string name="defaultBottomPixelStripNumber">10</string>
+    <string name="mainButtonText">"Get Started"</string>
+    <string name="textCopyright">"Developed by Vikas K Vijayakumar (kvvikas@yahoo.co.in) as part of Autonomous Vehicle Project"</string>
+    <string name="textAutoVehicleSensor">"Autonomous Vehicle Sensor"</string>
+    <string name="title_activity_process_sensor_data">ProcessSensorData</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
+</resources>
